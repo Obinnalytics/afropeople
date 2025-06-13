@@ -1,0 +1,183 @@
+/* Custom styles for AfroPeople Forum */
+
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Navigation */
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Post Cards */
+.post-card {
+    transition: all 0.3s ease;
+    border: 1px solid #dee2e6;
+}
+
+.post-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.post-card .card-title a {
+    color: #333;
+    text-decoration: none;
+}
+
+.post-card .card-title a:hover {
+    color: #198754;
+}
+
+/* Post Stats */
+.post-stats .badge {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.6rem;
+}
+
+/* Post Meta */
+.post-meta {
+    font-size: 0.85rem;
+}
+
+/* Comments */
+.comment {
+    border-left: 3px solid #198754;
+    transition: all 0.2s ease;
+}
+
+.comment:hover {
+    background-color: #e9ecef !important;
+}
+
+/* Forms */
+.form-control:focus {
+    border-color: #198754;
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+}
+
+.btn-success {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.btn-success:hover {
+    background-color: #146c43;
+    border-color: #146c43;
+}
+
+/* Categories Sidebar */
+.list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+.list-group-item.active {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+/* Welcome box */
+.card-header.bg-info {
+    background-color: #0dcaf0 !important;
+}
+
+.card-header.bg-warning {
+    background-color: #ffc107 !important;
+}
+
+/* Footer */
+footer {
+    margin-top: auto;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .navbar-brand {
+        font-size: 1.25rem;
+    }
+    
+    .post-stats {
+        margin-top: 1rem;
+        text-align: left !important;
+    }
+    
+    .btn-group-vertical .btn {
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Animation for flash messages */
+.alert {
+    animation: slideInDown 0.5s ease;
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Loading animation */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #198754;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #146c43;
+}
+
+/* African-inspired accent colors */
+.text-african-gold {
+    color: #FFD700 !important;
+}
+
+.bg-african-gold {
+    background-color: #FFD700 !important;
+}
+
+.text-african-red {
+    color: #DC143C !important;
+}
+
+.bg-african-red {
+    background-color: #DC143C !important;
+}
+
+.text-african-green {
+    color: #228B22 !important;
+}
+
+.bg-african-green {
+    background-color: #228B22 !important;
+} 

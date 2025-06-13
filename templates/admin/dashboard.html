@@ -1,0 +1,182 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Dashboard - Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 text-success">
+        <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
+    </h1>
+    <span class="badge bg-success fs-6">Admin Panel</span>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card admin-card stat-card">
+            <div class="card-body text-center">
+                <div class="text-primary mb-2">
+                    <i class="fas fa-users fa-2x"></i>
+                </div>
+                <h4 class="card-title text-primary">{{ total_users }}</h4>
+                <p class="card-text text-muted">Total Users</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card admin-card stat-card">
+            <div class="card-body text-center">
+                <div class="text-success mb-2">
+                    <i class="fas fa-file-alt fa-2x"></i>
+                </div>
+                <h4 class="card-title text-success">{{ total_posts }}</h4>
+                <p class="card-text text-muted">Total Posts</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card admin-card stat-card">
+            <div class="card-body text-center">
+                <div class="text-warning mb-2">
+                    <i class="fas fa-comments fa-2x"></i>
+                </div>
+                <h4 class="card-title text-warning">{{ total_comments }}</h4>
+                <p class="card-text text-muted">Total Comments</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card admin-card stat-card">
+            <div class="card-body text-center">
+                <div class="text-info mb-2">
+                    <i class="fas fa-tags fa-2x"></i>
+                </div>
+                <h4 class="card-title text-info">{{ total_categories }}</h4>
+                <p class="card-text text-muted">Categories</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row">
+    <!-- Recent Users -->
+    <div class="col-lg-6 mb-4">
+        <div class="card admin-card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-user-plus me-2"></i>Recent Users
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_users %}
+                    <div class="list-group list-group-flush">
+                        {% for user in recent_users %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ user.username }}</strong>
+                                {% if user.is_admin %}
+                                    <span class="badge bg-danger ms-2">Admin</span>
+                                {% endif %}
+                                <br>
+                                <small class="text-muted">{{ user.email }}</small>
+                            </div>
+                            <small class="text-muted">
+                                {{ user.date_joined.strftime('%m/%d/%Y') if user.date_joined else 'N/A' }}
+                            </small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('admin_users') }}" class="btn btn-primary btn-sm">
+                            View All Users
+                        </a>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center">No users found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Posts -->
+    <div class="col-lg-6 mb-4">
+        <div class="card admin-card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-file-alt me-2"></i>Recent Posts
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_posts %}
+                    <div class="list-group list-group-flush">
+                        {% for post in recent_posts %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <strong>{{ post.title | truncate_words(50) }}</strong>
+                                    {% if not post.is_active %}
+                                        <span class="badge bg-warning ms-2">Inactive</span>
+                                    {% endif %}
+                                    <br>
+                                    <small class="text-muted">
+                                        by {{ post.author.username }} in {{ post.category.name }}
+                                    </small>
+                                </div>
+                                <small class="text-muted">
+                                    {{ post.date_posted.strftime('%m/%d/%Y') if post.date_posted else 'N/A' }}
+                                </small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('admin_posts') }}" class="btn btn-success btn-sm">
+                            View All Posts
+                        </a>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center">No posts found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row">
+    <div class="col-12">
+        <div class="card admin-card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-lightning-bolt me-2"></i>Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('admin_add_category') }}" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-plus me-1"></i>Add Category
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('admin_users') }}" class="btn btn-outline-success w-100">
+                            <i class="fas fa-users me-1"></i>Manage Users
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('admin_posts') }}" class="btn btn-outline-warning w-100">
+                            <i class="fas fa-file-alt me-1"></i>Moderate Posts
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-info w-100">
+                            <i class="fas fa-external-link-alt me-1"></i>View Site
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

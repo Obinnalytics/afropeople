@@ -1,0 +1,212 @@
+{% extends "admin/base.html" %}
+
+{% block title %}AdSense Management - Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 text-success">
+        <i class="fas fa-ad me-2"></i>Google AdSense Management
+    </h1>
+    <span class="badge bg-{% if adsense and adsense.is_enabled %}success{% else %}secondary{% endif %} fs-6">
+        {% if adsense and adsense.is_enabled %}Enabled{% else %}Disabled{% endif %}
+    </span>
+</div>
+
+<!-- AdSense Information Card -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card admin-card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>AdSense Integration Guide
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary">How to Get AdSense Codes:</h6>
+                        <ol class="small">
+                            <li>Sign up for <a href="https://www.google.com/adsense/" target="_blank">Google AdSense</a></li>
+                            <li>Get your site approved by Google</li>
+                            <li>Create ad units in your AdSense dashboard</li>
+                            <li>Copy the ad codes and paste them below</li>
+                            <li>Enable AdSense to start showing ads</li>
+                        </ol>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-success">Ad Placement Locations:</h6>
+                        <ul class="small">
+                            <li><strong>Header:</strong> Top of every page</li>
+                            <li><strong>Sidebar:</strong> Right side of content pages</li>
+                            <li><strong>Footer:</strong> Bottom of every page</li>
+                            <li><strong>Post Content:</strong> Within post content area</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- AdSense Configuration Form -->
+<div class="row">
+    <div class="col-12">
+        <div class="card admin-card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-cog me-2"></i>AdSense Configuration
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- Publisher ID -->
+                    <div class="mb-4">
+                        <label for="{{ form.publisher_id.id }}" class="form-label">
+                            <i class="fas fa-id-card me-1"></i>{{ form.publisher_id.label.text }}
+                        </label>
+                        {{ form.publisher_id(class="form-control", placeholder="ca-pub-1234567890123456") }}
+                        <div class="form-text">
+                            Your Google AdSense Publisher ID (found in your AdSense account)
+                        </div>
+                    </div>
+
+                    <!-- Enable/Disable AdSense -->
+                    <div class="mb-4">
+                        <div class="form-check form-switch">
+                            {{ form.is_enabled(class="form-check-input") }}
+                            <label class="form-check-label" for="{{ form.is_enabled.id }}">
+                                <i class="fas fa-toggle-on me-1"></i>{{ form.is_enabled.label.text }}
+                            </label>
+                        </div>
+                        <div class="form-text">
+                            Toggle this to enable or disable all AdSense ads on your site
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Ad Code Sections -->
+                    <div class="row">
+                        <!-- Header Ad Code -->
+                        <div class="col-md-6 mb-4">
+                            <label for="{{ form.header_ad_code.id }}" class="form-label">
+                                <i class="fas fa-arrow-up me-1"></i>{{ form.header_ad_code.label.text }}
+                            </label>
+                            {{ form.header_ad_code(class="form-control", rows="6") }}
+                            <div class="form-text">
+                                Ad code that will appear at the top of every page
+                            </div>
+                        </div>
+
+                        <!-- Sidebar Ad Code -->
+                        <div class="col-md-6 mb-4">
+                            <label for="{{ form.sidebar_ad_code.id }}" class="form-label">
+                                <i class="fas fa-arrows-alt-h me-1"></i>{{ form.sidebar_ad_code.label.text }}
+                            </label>
+                            {{ form.sidebar_ad_code(class="form-control", rows="6") }}
+                            <div class="form-text">
+                                Ad code that will appear in the sidebar of content pages
+                            </div>
+                        </div>
+
+                        <!-- Footer Ad Code -->
+                        <div class="col-md-6 mb-4">
+                            <label for="{{ form.footer_ad_code.id }}" class="form-label">
+                                <i class="fas fa-arrow-down me-1"></i>{{ form.footer_ad_code.label.text }}
+                            </label>
+                            {{ form.footer_ad_code(class="form-control", rows="6") }}
+                            <div class="form-text">
+                                Ad code that will appear at the bottom of every page
+                            </div>
+                        </div>
+
+                        <!-- Post Content Ad Code -->
+                        <div class="col-md-6 mb-4">
+                            <label for="{{ form.post_content_ad_code.id }}" class="form-label">
+                                <i class="fas fa-file-alt me-1"></i>{{ form.post_content_ad_code.label.text }}
+                            </label>
+                            {{ form.post_content_ad_code(class="form-control", rows="6") }}
+                            <div class="form-text">
+                                Ad code that will appear within post content areas
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                        </a>
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Current Settings Preview -->
+{% if adsense and adsense.id %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card admin-card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-eye me-2"></i>Current AdSense Status
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h6 class="text-info">Publisher ID</h6>
+                            <p class="small">{{ adsense.publisher_id or 'Not Set' }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="text-center">
+                            <h6 class="text-info">Header Ad</h6>
+                            <span class="badge bg-{% if adsense.header_ad_code %}success{% else %}secondary{% endif %}">
+                                {% if adsense.header_ad_code %}Set{% else %}Not Set{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="text-center">
+                            <h6 class="text-info">Sidebar Ad</h6>
+                            <span class="badge bg-{% if adsense.sidebar_ad_code %}success{% else %}secondary{% endif %}">
+                                {% if adsense.sidebar_ad_code %}Set{% else %}Not Set{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="text-center">
+                            <h6 class="text-info">Footer Ad</h6>
+                            <span class="badge bg-{% if adsense.footer_ad_code %}success{% else %}secondary{% endif %}">
+                                {% if adsense.footer_ad_code %}Set{% else %}Not Set{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <h6 class="text-info">Post Content Ad</h6>
+                            <span class="badge bg-{% if adsense.post_content_ad_code %}success{% else %}secondary{% endif %}">
+                                {% if adsense.post_content_ad_code %}Set{% else %}Not Set{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="text-center">
+                    <small class="text-muted">
+                        Last updated: {{ adsense.updated_at.strftime('%B %d, %Y at %I:%M %p') if adsense.updated_at else 'Never' }}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %} 

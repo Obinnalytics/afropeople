@@ -1,0 +1,68 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Categories Management - Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 text-info">
+        <i class="fas fa-tags me-2"></i>Categories Management
+    </h1>
+    <a href="{{ url_for('admin_add_category') }}" class="btn btn-info">
+        <i class="fas fa-plus me-1"></i>Add Category
+    </a>
+</div>
+
+<!-- Categories Grid -->
+<div class="row">
+    {% for category in categories %}
+    <div class="col-lg-6 col-xl-4 mb-4">
+        <div class="card admin-card h-100">
+            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">{{ category.name }}</h5>
+                {% if category.is_active %}
+                    <span class="badge bg-success">Active</span>
+                {% else %}
+                    <span class="badge bg-warning">Inactive</span>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <p class="card-text">{{ category.description or 'No description' }}</p>
+                
+                <div class="row text-center mb-3">
+                    <div class="col">
+                        <h5 class="text-primary">{{ category.posts|length }}</h5>
+                        <small class="text-muted">Posts</small>
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('admin_edit_category', category_id=category.id) }}" 
+                       class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-edit me-1"></i>Edit
+                    </a>
+                    
+                    <form method="POST" action="{{ url_for('admin_toggle_category', category_id=category.id) }}" 
+                          class="d-inline">
+                        <button type="submit" 
+                                class="btn btn-outline-{{ 'success' if not category.is_active else 'warning' }} btn-sm">
+                            <i class="fas fa-{{ 'check' if not category.is_active else 'ban' }} me-1"></i>
+                            {{ 'Activate' if not category.is_active else 'Deactivate' }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if not categories %}
+<div class="text-center py-5">
+    <i class="fas fa-tags fa-3x text-muted mb-3"></i>
+    <h5 class="text-muted">No categories found</h5>
+    <a href="{{ url_for('admin_add_category') }}" class="btn btn-info">
+        <i class="fas fa-plus me-1"></i>Add First Category
+    </a>
+</div>
+{% endif %}
+{% endblock %} 
