@@ -262,4 +262,19 @@
         </div>
     </div>
 </div>
+
+<!-- Profile Page Advertisement -->
+{% if should_display_ads(adsense) and adsense.profile_ad_code %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="bg-gray-100 px-6 py-3">
+            <span class="text-sm text-gray-500">Advertisement</span>
+        </div>
+        <div class="p-6 text-center">
+            {{ adsense.profile_ad_code|safe }}
+        </div>
+    </div>
+</div>
+{% endif %}
+
 {% endblock %} 

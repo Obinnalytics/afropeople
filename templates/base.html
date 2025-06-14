@@ -255,13 +255,27 @@
                 </div>
 
                 <!-- AdSense Sidebar Ad -->
-                {% if adsense and adsense.is_enabled and adsense.sidebar_ad_code %}
+                {% if should_display_ads(adsense) and adsense.sidebar_ad_code %}
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                     <div class="bg-gray-100 px-4 py-3">
                         <span class="text-sm text-gray-500">Advertisement</span>
                     </div>
                     <div class="p-4 text-center">
                         {{ adsense.sidebar_ad_code|safe }}
+                    </div>
+                </div>
+                {% elif adsense and adsense.is_enabled %}
+                <!-- Demo Advertisement (shows when AdSense is enabled but no sidebar code) -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="bg-gray-100 px-4 py-3">
+                        <span class="text-sm text-gray-500">Advertisement</span>
+                    </div>
+                    <div class="p-4 text-center">
+                        <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-6 rounded-lg">
+                            <h4 class="font-bold text-lg mb-2">Your Ad Here</h4>
+                            <p class="text-sm opacity-90 mb-3">Add your AdSense code in admin panel</p>
+                            <div class="text-xs opacity-75">Demo Advertisement</div>
+                        </div>
                     </div>
                 </div>
                 {% endif %}

@@ -85,6 +85,43 @@
                         </div>
                     </div>
 
+                    <!-- Auto Ads -->
+                    <div class="mb-4">
+                        <div class="form-check form-switch">
+                            {{ form.auto_ads_enabled(class="form-check-input") }}
+                            <label class="form-check-label" for="{{ form.auto_ads_enabled.id }}">
+                                <i class="fas fa-magic me-1"></i>{{ form.auto_ads_enabled.label.text }}
+                            </label>
+                        </div>
+                        <div class="form-text">
+                            Let Google automatically place ads on your site for optimal performance
+                        </div>
+                    </div>
+
+                    <!-- Ad Frequency -->
+                    <div class="mb-4">
+                        <label for="{{ form.ad_frequency.id }}" class="form-label">
+                            <i class="fas fa-users me-1"></i>{{ form.ad_frequency.label.text }}
+                        </label>
+                        {{ form.ad_frequency(class="form-select") }}
+                        <div class="form-text">
+                            Control who sees the advertisements on your site
+                        </div>
+                    </div>
+
+                    <!-- Responsive Ads -->
+                    <div class="mb-4">
+                        <div class="form-check form-switch">
+                            {{ form.responsive_ads(class="form-check-input") }}
+                            <label class="form-check-label" for="{{ form.responsive_ads.id }}">
+                                <i class="fas fa-mobile-alt me-1"></i>{{ form.responsive_ads.label.text }}
+                            </label>
+                        </div>
+                        <div class="form-text">
+                            Use responsive ad units that automatically adapt to different screen sizes
+                        </div>
+                    </div>
+
                     <hr>
 
                     <!-- Ad Code Sections -->
@@ -130,6 +167,28 @@
                             {{ form.post_content_ad_code(class="form-control", rows="6") }}
                             <div class="form-text">
                                 Ad code that will appear within post content areas
+                            </div>
+                        </div>
+
+                        <!-- Category Page Ad Code -->
+                        <div class="col-md-6 mb-4">
+                            <label for="{{ form.category_ad_code.id }}" class="form-label">
+                                <i class="fas fa-tags me-1"></i>{{ form.category_ad_code.label.text }}
+                            </label>
+                            {{ form.category_ad_code(class="form-control", rows="6") }}
+                            <div class="form-text">
+                                Ad code that will appear on category listing pages
+                            </div>
+                        </div>
+
+                        <!-- Profile Page Ad Code -->
+                        <div class="col-md-6 mb-4">
+                            <label for="{{ form.profile_ad_code.id }}" class="form-label">
+                                <i class="fas fa-user me-1"></i>{{ form.profile_ad_code.label.text }}
+                            </label>
+                            {{ form.profile_ad_code(class="form-control", rows="6") }}
+                            <div class="form-text">
+                                Ad code that will appear on user profile pages
                             </div>
                         </div>
                     </div>

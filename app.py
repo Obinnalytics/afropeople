@@ -51,6 +51,20 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def should_display_ads(adsense):
+    """Determine if ads should be displayed based on user status and settings"""
+    if not adsense or not adsense.is_enabled:
+        return False
+    
+    if adsense.ad_frequency == 'always':
+        return True
+    elif adsense.ad_frequency == 'logged_out':
+        return not current_user.is_authenticated
+    elif adsense.ad_frequency == 'members':
+        return current_user.is_authenticated
+    
+    return True
+
 # User loader callback
 @login_manager.user_loader
 def load_user(user_id):
@@ -192,7 +206,12 @@ class AdSense(db.Model):
     sidebar_ad_code = db.Column(db.Text)
     footer_ad_code = db.Column(db.Text)
     post_content_ad_code = db.Column(db.Text)
+    category_ad_code = db.Column(db.Text)
+    profile_ad_code = db.Column(db.Text)
     is_enabled = db.Column(db.Boolean, default=False)
+    auto_ads_enabled = db.Column(db.Boolean, default=False)
+    ad_frequency = db.Column(db.String(20), default='always')
+    responsive_ads = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -237,7 +256,16 @@ class AdSenseForm(FlaskForm):
     sidebar_ad_code = TextAreaField('Sidebar Ad Code')
     footer_ad_code = TextAreaField('Footer Ad Code')
     post_content_ad_code = TextAreaField('Post Content Ad Code')
+    category_ad_code = TextAreaField('Category Page Ad Code')
+    profile_ad_code = TextAreaField('Profile Page Ad Code')
     is_enabled = BooleanField('Enable AdSense')
+    auto_ads_enabled = BooleanField('Enable Auto Ads')
+    ad_frequency = SelectField('Ad Display Frequency', 
+                              choices=[('always', 'Show Always'), 
+                                     ('logged_out', 'Show Only to Logged Out Users'),
+                                     ('members', 'Show Only to Members')],
+                              default='always')
+    responsive_ads = BooleanField('Use Responsive Ad Units', default=True)
     submit = SubmitField('Save AdSense Settings')
 
 class ProfileForm(FlaskForm):
@@ -747,7 +775,12 @@ def admin_adsense():
         adsense.sidebar_ad_code = form.sidebar_ad_code.data
         adsense.footer_ad_code = form.footer_ad_code.data
         adsense.post_content_ad_code = form.post_content_ad_code.data
+        adsense.category_ad_code = form.category_ad_code.data
+        adsense.profile_ad_code = form.profile_ad_code.data
         adsense.is_enabled = form.is_enabled.data
+        adsense.auto_ads_enabled = form.auto_ads_enabled.data
+        adsense.ad_frequency = form.ad_frequency.data
+        adsense.responsive_ads = form.responsive_ads.data
         adsense.updated_at = datetime.utcnow()
         db.session.commit()
         flash('AdSense settings updated successfully!', 'success')
@@ -759,9 +792,14 @@ def admin_adsense():
         form.sidebar_ad_code.data = adsense.sidebar_ad_code
         form.footer_ad_code.data = adsense.footer_ad_code
         form.post_content_ad_code.data = adsense.post_content_ad_code
+        form.category_ad_code.data = adsense.category_ad_code
+        form.profile_ad_code.data = adsense.profile_ad_code
         form.is_enabled.data = adsense.is_enabled
+        form.auto_ads_enabled.data = adsense.auto_ads_enabled
+        form.ad_frequency.data = adsense.ad_frequency
+        form.responsive_ads.data = adsense.responsive_ads
     
-    return render_template('admin/adsense.html', form=form)
+    return render_template('admin/adsense.html', form=form, adsense=adsense)
 
 @app.context_processor
 def inject_sidebar_data():
@@ -902,7 +940,8 @@ def inject_sidebar_data():
         recent_activity=recent_activity,
         top_active_users=top_active_users,
         newest_members=newest_members,
-        adsense=adsense
+        adsense=adsense,
+        should_display_ads=should_display_ads
     )
 
 def init_db():
