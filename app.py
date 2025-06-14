@@ -7,7 +7,7 @@ from wtforms import StringField, TextAreaField, PasswordField, SubmitField, Sele
 from wtforms.validators import DataRequired, Length, Email, EqualTo, Optional, URL
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import wraps
 import pymysql
 import re
@@ -768,11 +768,140 @@ def inject_sidebar_data():
     categories = Category.query.filter_by(is_active=True).all()
     recent_posts = Post.query.filter_by(is_active=True).order_by(Post.date_posted.desc()).limit(5).all()
     
+    # Calculate comprehensive forum statistics
+    total_posts = Post.query.filter_by(is_active=True).count()
+    total_users = User.query.filter_by(is_active=True).count()
+    total_comments = Comment.query.filter_by(is_active=True).count()
+    total_likes = Like.query.count()
+    
+    # Get recent activity (posts, comments, likes from last 7 days)
+    week_ago = datetime.utcnow() - timedelta(days=7)
+    
+    recent_activity = []
+    
+    # Recent posts
+    recent_new_posts = Post.query.filter(
+        Post.is_active == True,
+        Post.date_posted >= week_ago
+    ).order_by(Post.date_posted.desc()).limit(3).all()
+    
+    for post in recent_new_posts:
+        recent_activity.append({
+            'type': 'post',
+            'icon': 'fas fa-file-alt',
+            'color': 'text-blue-600',
+            'bg_color': 'bg-blue-100',
+            'title': post.title,
+            'user': post.author.username,
+            'user_image': post.author.profile_image,
+            'date': post.date_posted,
+            'url': url_for('post_detail', slug=post.slug),
+            'category': post.category.name
+        })
+    
+    # Recent comments
+    recent_new_comments = Comment.query.filter(
+        Comment.is_active == True,
+        Comment.date_posted >= week_ago,
+        Comment.parent_id == None  # Only top-level comments
+    ).order_by(Comment.date_posted.desc()).limit(3).all()
+    
+    for comment in recent_new_comments:
+        recent_activity.append({
+            'type': 'comment',
+            'icon': 'fas fa-comment',
+            'color': 'text-green-600',
+            'bg_color': 'bg-green-100',
+            'title': f"Commented on \"{comment.post.title[:30]}...\"",
+            'user': comment.author.username,
+            'user_image': comment.author.profile_image,
+            'date': comment.date_posted,
+            'url': url_for('post_detail', slug=comment.post.slug),
+            'category': comment.post.category.name
+        })
+    
+    # Recent likes
+    recent_new_likes = Like.query.filter(
+        Like.date_liked >= week_ago
+    ).order_by(Like.date_liked.desc()).limit(2).all()
+    
+    for like in recent_new_likes:
+        recent_activity.append({
+            'type': 'like',
+            'icon': 'fas fa-heart',
+            'color': 'text-red-600',
+            'bg_color': 'bg-red-100',
+            'title': f"Liked \"{like.post.title[:30]}...\"",
+            'user': like.user.username,
+            'user_image': like.user.profile_image,
+            'date': like.date_liked,
+            'url': url_for('post_detail', slug=like.post.slug),
+            'category': like.post.category.name
+        })
+    
+    # Sort all activity by date
+    recent_activity.sort(key=lambda x: x['date'], reverse=True)
+    recent_activity = recent_activity[:8]  # Limit to 8 most recent activities
+    
+    # Get most active users (by posts + comments in last 30 days)
+    month_ago = datetime.utcnow() - timedelta(days=30)
+    
+    # This is a simplified approach - in production you might want to use raw SQL for better performance
+    active_users = []
+    users = User.query.filter_by(is_active=True).limit(20).all()  # Limit to avoid performance issues
+    
+    for user in users:
+        recent_posts_count = Post.query.filter(
+            Post.user_id == user.id,
+            Post.is_active == True,
+            Post.date_posted >= month_ago
+        ).count()
+        
+        recent_comments_count = Comment.query.filter(
+            Comment.user_id == user.id,
+            Comment.is_active == True,
+            Comment.date_posted >= month_ago
+        ).count()
+        
+        activity_score = recent_posts_count * 3 + recent_comments_count  # Posts worth more
+        
+        if activity_score > 0:
+            active_users.append({
+                'user': user,
+                'score': activity_score,
+                'posts': recent_posts_count,
+                'comments': recent_comments_count
+            })
+    
+    # Sort by activity score and get top 5
+    active_users.sort(key=lambda x: x['score'], reverse=True)
+    top_active_users = active_users[:5]
+    
+    # Get newest members (last 30 days)
+    newest_members = User.query.filter(
+        User.is_active == True,
+        User.date_joined >= month_ago
+    ).order_by(User.date_joined.desc()).limit(5).all()
+    
     adsense = AdSense.query.first()
+    
+    forum_stats = {
+        'total_posts': total_posts,
+        'total_users': total_users,
+        'total_comments': total_comments,
+        'total_likes': total_likes,
+        'posts_this_week': len(recent_new_posts),
+        'comments_this_week': len(recent_new_comments),
+        'likes_this_week': len(recent_new_likes)
+    }
     
     return dict(
         sidebar_categories=categories,
         sidebar_recent_posts=recent_posts,
+        forum_stats=forum_stats,
+        recent_activity=recent_activity,
+        top_active_users=top_active_users,
+        newest_members=newest_members,
         adsense=adsense
     )
 

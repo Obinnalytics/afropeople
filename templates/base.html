@@ -221,23 +221,50 @@
                         </h3>
                     </div>
                     <div class="p-4">
-                        <div class="grid grid-cols-2 gap-3 mb-3">
+                        <div class="grid grid-cols-2 gap-3 mb-4">
                             <div class="text-center">
-                                <div class="text-2xl font-bold text-primary-600">{{ forum_stats.total_posts if forum_stats else '0' }}</div>
+                                <div class="text-2xl font-bold text-primary-600">{{ forum_stats.total_posts }}</div>
                                 <div class="text-sm text-gray-500">Posts</div>
                             </div>
                             <div class="text-center">
-                                <div class="text-2xl font-bold text-primary-600">{{ forum_stats.total_users if forum_stats else '0' }}</div>
+                                <div class="text-2xl font-bold text-primary-600">{{ forum_stats.total_users }}</div>
                                 <div class="text-sm text-gray-500">Members</div>
                             </div>
                         </div>
-                        <div class="text-center pt-4 border-t border-gray-100">
-                            <div class="text-sm text-gray-500">
-                                <i class="fas fa-comments mr-1"></i>{{ forum_stats.total_comments if forum_stats else '0' }} Comments
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div class="text-center">
+                                <div class="text-xl font-bold text-green-600">{{ forum_stats.total_comments }}</div>
+                                <div class="text-xs text-gray-500">Comments</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-xl font-bold text-red-600">{{ forum_stats.total_likes }}</div>
+                                <div class="text-xs text-gray-500">Likes</div>
+                            </div>
+                        </div>
+                        <div class="pt-3 border-t border-gray-100">
+                            <div class="text-center">
+                                <div class="text-sm text-gray-600 mb-1">This Week</div>
+                                <div class="flex justify-center space-x-4 text-xs">
+                                    <span class="text-blue-600">{{ forum_stats.posts_this_week }} posts</span>
+                                    <span class="text-green-600">{{ forum_stats.comments_this_week }} comments</span>
+                                    <span class="text-red-600">{{ forum_stats.likes_this_week }} likes</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- AdSense Sidebar Ad -->
+                {% if adsense and adsense.is_enabled and adsense.sidebar_ad_code %}
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="bg-gray-100 px-4 py-3">
+                        <span class="text-sm text-gray-500">Advertisement</span>
+                    </div>
+                    <div class="p-4 text-center">
+                        {{ adsense.sidebar_ad_code|safe }}
+                    </div>
+                </div>
+                {% endif %}
 
                 <!-- Recent Activity -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
@@ -247,28 +274,119 @@
                         </h3>
                     </div>
                     <div class="p-2">
-                        {% if recent_posts %}
-                            {% for post in recent_posts[:4] %}
-                            <a href="{{ url_for('post_detail', post_id=post.id) }}" class="block p-4 hover:bg-gray-50 rounded-xl transition-colors group">
-                                <div class="flex justify-between items-start mb-2">
-                                    <h4 class="font-medium text-gray-900 group-hover:text-primary-600 line-clamp-2 text-sm">
-                                        {{ post.title | truncate_words(25) }}
-                                    </h4>
-                                    <span class="text-xs text-gray-500 ml-2 flex-shrink-0">
-                                        {{ post.date_posted.strftime('%m/%d') if post.date_posted else 'N/A' }}
-                                    </span>
+                        {% if recent_activity %}
+                            {% for activity in recent_activity %}
+                            <a href="{{ activity.url }}" class="block p-3 hover:bg-gray-50 rounded-xl transition-colors group">
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-8 h-8 {{ activity.bg_color }} rounded-lg flex items-center justify-center flex-shrink-0">
+                                        <i class="{{ activity.icon }} {{ activity.color }} text-sm"></i>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center space-x-2 mb-1">
+                                            <div class="w-5 h-5 rounded-full overflow-hidden border border-gray-300 flex-shrink-0">
+                                                {% if activity.user_image and activity.user_image != 'default.jpg' %}
+                                                <img src="{{ url_for('static', filename='uploads/profile_pics/' + activity.user_image) }}" 
+                                                     alt="{{ activity.user }}" 
+                                                     class="w-full h-full object-cover">
+                                                {% else %}
+                                                <div class="w-full h-full bg-gradient-to-r from-primary-400 to-primary-500 flex items-center justify-center">
+                                                    <i class="fas fa-user text-white text-xs"></i>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            <span class="text-xs font-medium text-gray-900">{{ activity.user }}</span>
+                                        </div>
+                                        <p class="text-xs text-gray-600 group-hover:text-primary-600 line-clamp-2 mb-1">
+                                            {{ activity.title | truncate_words(20) }}
+                                        </p>
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-xs text-gray-500">{{ activity.category }}</span>
+                                            <span class="text-xs text-gray-400">
+                                                {{ activity.date.strftime('%m/%d %H:%M') if activity.date else 'N/A' }}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="text-xs text-gray-500">by {{ post.author.username }}</div>
                             </a>
                             {% endfor %}
                         {% else %}
                             <div class="text-center py-8 text-gray-500">
                                 <i class="fas fa-clock text-2xl mb-2"></i>
-                                <p class="text-sm">No recent posts</p>
+                                <p class="text-sm">No recent activity</p>
                             </div>
                         {% endif %}
                     </div>
                 </div>
+
+                <!-- Top Active Users -->
+                {% if top_active_users %}
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-3">
+                        <h3 class="text-base font-semibold text-white flex items-center">
+                            <i class="fas fa-star mr-3"></i>Top Contributors
+                        </h3>
+                    </div>
+                    <div class="p-3">
+                        {% for contributor in top_active_users %}
+                        <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                            <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-purple-300 flex-shrink-0">
+                                {% if contributor.user.profile_image and contributor.user.profile_image != 'default.jpg' %}
+                                <img src="{{ url_for('static', filename='uploads/profile_pics/' + contributor.user.profile_image) }}" 
+                                     alt="{{ contributor.user.username }}" 
+                                     class="w-full h-full object-cover">
+                                {% else %}
+                                <div class="w-full h-full bg-gradient-to-r from-purple-400 to-pink-500 flex items-center justify-center">
+                                    <i class="fas fa-user text-white text-xs"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-medium text-sm text-gray-900">{{ contributor.user.username }}</div>
+                                <div class="text-xs text-gray-500">
+                                    {{ contributor.posts }} posts, {{ contributor.comments }} comments
+                                </div>
+                            </div>
+                            <div class="text-xs font-bold text-purple-600">{{ contributor.score }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Newest Members -->
+                {% if newest_members %}
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="bg-gradient-to-r from-green-500 to-teal-500 px-4 py-3">
+                        <h3 class="text-base font-semibold text-white flex items-center">
+                            <i class="fas fa-user-plus mr-3"></i>New Members
+                        </h3>
+                    </div>
+                    <div class="p-3">
+                        {% for member in newest_members %}
+                        <div class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg transition-colors">
+                            <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-green-300 flex-shrink-0">
+                                {% if member.profile_image and member.profile_image != 'default.jpg' %}
+                                <img src="{{ url_for('static', filename='uploads/profile_pics/' + member.profile_image) }}" 
+                                     alt="{{ member.username }}" 
+                                     class="w-full h-full object-cover">
+                                {% else %}
+                                <div class="w-full h-full bg-gradient-to-r from-green-400 to-teal-500 flex items-center justify-center">
+                                    <i class="fas fa-user text-white text-xs"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-medium text-sm text-gray-900">{{ member.username }}</div>
+                                <div class="text-xs text-gray-500">
+                                    Joined {{ member.date_joined.strftime('%m/%d/%Y') if member.date_joined else 'N/A' }}
+                                </div>
+                            </div>
+                            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
 
                 <!-- Community Status -->
                 {% if current_user.is_authenticated %}
@@ -291,18 +409,6 @@
                         <i class="fas fa-shield-alt mr-2"></i>Admin Panel
                     </a>
                     {% endif %}
-                </div>
-                {% endif %}
-                
-                <!-- AdSense Sidebar Ad -->
-                {% if adsense and adsense.is_enabled and adsense.sidebar_ad_code %}
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="bg-gray-100 px-6 py-3">
-                        <span class="text-sm text-gray-500">Advertisement</span>
-                    </div>
-                    <div class="p-4 text-center">
-                        {{ adsense.sidebar_ad_code|safe }}
-                    </div>
                 </div>
                 {% endif %}
             </div>
