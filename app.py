@@ -117,12 +117,27 @@ class Comment(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+    parent_id = db.Column(db.Integer, db.ForeignKey('comment.id'), nullable=True)
+    replies = db.relationship('Comment', backref=db.backref('parent', remote_side=[id]), lazy=True)
+    helpful_votes = db.relationship('CommentHelpful', backref='comment', lazy=True, cascade='all, delete-orphan')
+
+    def get_helpful_count(self):
+        return len(self.helpful_votes)
+
+    def is_helpful_by(self, user):
+        return CommentHelpful.query.filter_by(user_id=user.id, comment_id=self.id).first() is not None
 
 class Like(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
     date_liked = db.Column(db.DateTime, default=datetime.utcnow)
+
+class CommentHelpful(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    comment_id = db.Column(db.Integer, db.ForeignKey('comment.id'), nullable=False)
+    date_voted = db.Column(db.DateTime, default=datetime.utcnow)
 
 class AdSense(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -318,7 +333,18 @@ def create_post():
 def post_detail(post_id):
     post = Post.query.filter_by(id=post_id, is_active=True).first_or_404()
     form = CommentForm()
-    return render_template('post_detail.html', post=post, form=form)
+    
+    # Get user's helpful votes if authenticated
+    user_helpful_votes = []
+    if current_user.is_authenticated:
+        user_helpful_votes = [vote.comment_id for vote in CommentHelpful.query.filter_by(user_id=current_user.id).all()]
+    
+    # Get only top-level comments (no parent_id) and their replies
+    top_level_comments = Comment.query.filter_by(post_id=post_id, parent_id=None, is_active=True).order_by(Comment.date_posted.asc()).all()
+    
+    return render_template('post_detail.html', post=post, form=form, 
+                         user_helpful_votes=user_helpful_votes, 
+                         top_level_comments=top_level_comments)
 
 @app.route('/add_comment/<int:post_id>', methods=['POST'])
 @login_required
@@ -338,16 +364,58 @@ def like_post(post_id):
     existing_like = Like.query.filter_by(user_id=current_user.id, post_id=post_id).first()
     
     if existing_like:
+        # Unlike the post
         db.session.delete(existing_like)
-        db.session.commit()
         flash('Post unliked!', 'info')
     else:
+        # Like the post
         like = Like(user_id=current_user.id, post_id=post_id)
         db.session.add(like)
-        db.session.commit()
         flash('Post liked!', 'success')
     
+    db.session.commit()
     return redirect(request.referrer or url_for('index'))
+
+@app.route('/helpful_comment/<int:comment_id>', methods=['POST'])
+@login_required
+def helpful_comment(comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+    existing_vote = CommentHelpful.query.filter_by(user_id=current_user.id, comment_id=comment_id).first()
+    
+    if existing_vote:
+        # Remove helpful vote
+        db.session.delete(existing_vote)
+        flash('Helpful vote removed!', 'info')
+    else:
+        # Add helpful vote
+        vote = CommentHelpful(user_id=current_user.id, comment_id=comment_id)
+        db.session.add(vote)
+        flash('Comment marked as helpful!', 'success')
+    
+    db.session.commit()
+    return redirect(request.referrer or url_for('post_detail', post_id=comment.post_id))
+
+@app.route('/reply_comment/<int:comment_id>', methods=['POST'])
+@login_required
+def reply_comment(comment_id):
+    parent_comment = Comment.query.get_or_404(comment_id)
+    content = request.form.get('content')
+    
+    if not content or not content.strip():
+        flash('Reply content cannot be empty!', 'danger')
+        return redirect(request.referrer or url_for('post_detail', post_id=parent_comment.post_id))
+    
+    reply = Comment(
+        content=content.strip(),
+        user_id=current_user.id,
+        post_id=parent_comment.post_id,
+        parent_id=comment_id
+    )
+    
+    db.session.add(reply)
+    db.session.commit()
+    flash('Reply added successfully!', 'success')
+    return redirect(request.referrer or url_for('post_detail', post_id=parent_comment.post_id))
 
 # Profile Routes
 @app.route('/profile')
