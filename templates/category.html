@@ -72,14 +72,14 @@
 
                 <!-- Post Title -->
                 <h2 class="text-xl font-bold text-gray-900 mb-3 hover:text-primary-600 transition-colors">
-                    <a href="{{ url_for('post_detail', post_id=post.id) }}">{{ post.title }}</a>
+                    <a href="{{ url_for('post_detail', slug=post.slug) }}">{{ post.title }}</a>
                 </h2>
 
                 <!-- Post Content Preview -->
                 <div class="text-gray-700 mb-4 leading-relaxed">
                     {{ post.content | nl2br | truncate_words(50) | safe }}
                     {% if post.content | length > 200 %}
-                    <a href="{{ url_for('post_detail', post_id=post.id) }}" class="text-primary-600 hover:text-primary-700 font-medium ml-2">
+                    <a href="{{ url_for('post_detail', slug=post.slug) }}" class="text-primary-600 hover:text-primary-700 font-medium ml-2">
                         Read more →
                     </a>
                     {% endif %}
@@ -106,7 +106,7 @@
                         {% endif %}
 
                         <!-- Comments -->
-                        <a href="{{ url_for('post_detail', post_id=post.id) }}" class="flex items-center space-x-2 text-gray-600 hover:text-primary-600 transition-colors">
+                        <a href="{{ url_for('post_detail', slug=post.slug) }}" class="flex items-center space-x-2 text-gray-600 hover:text-primary-600 transition-colors">
                             <i class="fas fa-comment"></i>
                             <span class="text-sm font-medium">{{ post.comments|length }}</span>
                         </a>
@@ -119,19 +119,19 @@
                             </button>
                             <div class="absolute bottom-full left-0 mb-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
                                 <div class="py-2">
-                                    <button onclick="copyToClipboard('{{ request.url_root }}post/{{ post.id }}')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <button onclick="copyToClipboard('{{ request.url_root }}post/{{ post.slug }}')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                                         <i class="fas fa-link mr-2"></i>Copy Link
                                     </button>
-                                    <a href="https://twitter.com/intent/tweet?text={{ post.title | urlencode }}&url={{ request.url_root }}post/{{ post.id }}" target="_blank" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <a href="https://twitter.com/intent/tweet?text={{ post.title | urlencode }}&url={{ request.url_root }}post/{{ post.slug }}" target="_blank" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                                         <i class="fab fa-twitter mr-2"></i>Share on Twitter
                                     </a>
-                                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url_root }}post/{{ post.id }}" target="_blank" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url_root }}post/{{ post.slug }}" target="_blank" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                                         <i class="fab fa-facebook mr-2"></i>Share on Facebook
                                     </a>
-                                    <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.url_root }}post/{{ post.id }}" target="_blank" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.url_root }}post/{{ post.slug }}" target="_blank" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                                         <i class="fab fa-linkedin mr-2"></i>Share on LinkedIn
                                     </a>
-                                    <a href="https://wa.me/?text={{ post.title | urlencode }}%20{{ request.url_root }}post/{{ post.id }}" target="_blank" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <a href="https://wa.me/?text={{ post.title | urlencode }}%20{{ request.url_root }}post/{{ post.slug }}" target="_blank" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                                         <i class="fab fa-whatsapp mr-2"></i>Share on WhatsApp
                                     </a>
                                 </div>
@@ -139,7 +139,7 @@
                         </div>
                     </div>
 
-                    <a href="{{ url_for('post_detail', post_id=post.id) }}" class="text-primary-600 hover:text-primary-700 font-medium text-sm">
+                    <a href="{{ url_for('post_detail', slug=post.slug) }}" class="text-primary-600 hover:text-primary-700 font-medium text-sm">
                         View Discussion →
                     </a>
                 </div>

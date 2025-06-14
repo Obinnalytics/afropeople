@@ -178,7 +178,7 @@
                     <div class="border border-gray-200 rounded-lg p-3 hover:shadow-sm transition-shadow">
                         <div class="flex items-start justify-between mb-1">
                             <h3 class="font-semibold text-gray-900 hover:text-primary-600 transition-colors text-sm">
-                                <a href="{{ url_for('post_detail', post_id=post.id) }}">{{ post.title }}</a>
+                                <a href="{{ url_for('post_detail', slug=post.slug) }}">{{ post.title }}</a>
                             </h3>
                             <span class="text-xs text-gray-500">{{ post.date_posted.strftime('%b %d') }}</span>
                         </div>
@@ -230,7 +230,7 @@
                     <div class="border border-gray-200 rounded-lg p-3 hover:shadow-sm transition-shadow">
                         <div class="flex items-start justify-between mb-1">
                             <h4 class="font-medium text-gray-900 text-sm">
-                                <a href="{{ url_for('post_detail', post_id=comment.post.id) }}" class="hover:text-primary-600 transition-colors">
+                                <a href="{{ url_for('post_detail', slug=comment.post.slug) }}" class="hover:text-primary-600 transition-colors">
                                     Re: {{ comment.post.title }}
                                 </a>
                             </h4>

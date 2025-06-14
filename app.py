@@ -96,6 +96,7 @@ class Category(db.Model):
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
+    slug = db.Column(db.String(250), unique=True, nullable=False)
     content = db.Column(db.Text, nullable=False)
     date_posted = db.Column(db.DateTime, default=datetime.utcnow)
     is_active = db.Column(db.Boolean, default=True)
@@ -109,6 +110,28 @@ class Post(db.Model):
 
     def is_liked_by(self, user):
         return Like.query.filter_by(user_id=user.id, post_id=self.id).first() is not None
+
+    @staticmethod
+    def generate_slug(title):
+        """Generate a URL-friendly slug from the title"""
+        # Convert to lowercase and replace spaces with hyphens
+        slug = re.sub(r'[^\w\s-]', '', title.lower())
+        slug = re.sub(r'[-\s]+', '-', slug)
+        slug = slug.strip('-')
+        
+        # Ensure slug is not empty
+        if not slug:
+            slug = 'post'
+        
+        # Check if slug already exists and make it unique
+        existing_post = Post.query.filter_by(slug=slug).first()
+        if existing_post:
+            counter = 1
+            while Post.query.filter_by(slug=f"{slug}-{counter}").first():
+                counter += 1
+            slug = f"{slug}-{counter}"
+        
+        return slug
 
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -319,19 +342,26 @@ def create_post():
     categories = Category.query.filter_by(is_active=True).all()
     
     if form.validate_on_submit():
-        category_id = request.form.get('category')
-        post = Post(title=form.title.data, content=form.content.data,
-                   author=current_user, category_id=category_id)
+        # Generate slug from title
+        slug = Post.generate_slug(form.title.data)
+        
+        post = Post(
+            title=form.title.data,
+            slug=slug,
+            content=form.content.data,
+            author=current_user,
+            category_id=request.form.get('category_id')
+        )
         db.session.add(post)
         db.session.commit()
         flash('Your post has been created!', 'success')
-        return redirect(url_for('index'))
+        return redirect(url_for('post_detail', slug=post.slug))
     
     return render_template('create_post.html', form=form, categories=categories)
 
-@app.route('/post/<int:post_id>')
-def post_detail(post_id):
-    post = Post.query.filter_by(id=post_id, is_active=True).first_or_404()
+@app.route('/post/<slug>')
+def post_detail(slug):
+    post = Post.query.filter_by(slug=slug, is_active=True).first_or_404()
     form = CommentForm()
     
     # Get user's helpful votes if authenticated
@@ -340,22 +370,23 @@ def post_detail(post_id):
         user_helpful_votes = [vote.comment_id for vote in CommentHelpful.query.filter_by(user_id=current_user.id).all()]
     
     # Get only top-level comments (no parent_id) and their replies
-    top_level_comments = Comment.query.filter_by(post_id=post_id, parent_id=None, is_active=True).order_by(Comment.date_posted.asc()).all()
+    top_level_comments = Comment.query.filter_by(post_id=post.id, parent_id=None, is_active=True).order_by(Comment.date_posted.asc()).all()
     
     return render_template('post_detail.html', post=post, form=form, 
                          user_helpful_votes=user_helpful_votes, 
                          top_level_comments=top_level_comments)
 
-@app.route('/add_comment/<int:post_id>', methods=['POST'])
+@app.route('/add_comment/<slug>', methods=['POST'])
 @login_required
-def add_comment(post_id):
+def add_comment(slug):
+    post = Post.query.filter_by(slug=slug, is_active=True).first_or_404()
     form = CommentForm()
     if form.validate_on_submit():
-        comment = Comment(content=form.content.data, author=current_user, post_id=post_id)
+        comment = Comment(content=form.content.data, author=current_user, post_id=post.id)
         db.session.add(comment)
         db.session.commit()
         flash('Your comment has been added!', 'success')
-    return redirect(url_for('post_detail', post_id=post_id))
+    return redirect(url_for('post_detail', slug=slug))
 
 @app.route('/like_post/<int:post_id>', methods=['POST'])
 @login_required
@@ -393,7 +424,7 @@ def helpful_comment(comment_id):
         flash('Comment marked as helpful!', 'success')
     
     db.session.commit()
-    return redirect(request.referrer or url_for('post_detail', post_id=comment.post_id))
+    return redirect(request.referrer or url_for('post_detail', slug=comment.post.slug))
 
 @app.route('/reply_comment/<int:comment_id>', methods=['POST'])
 @login_required
@@ -403,7 +434,7 @@ def reply_comment(comment_id):
     
     if not content or not content.strip():
         flash('Reply content cannot be empty!', 'danger')
-        return redirect(request.referrer or url_for('post_detail', post_id=parent_comment.post_id))
+        return redirect(request.referrer or url_for('post_detail', slug=parent_comment.post.slug))
     
     reply = Comment(
         content=content.strip(),
@@ -415,7 +446,7 @@ def reply_comment(comment_id):
     db.session.add(reply)
     db.session.commit()
     flash('Reply added successfully!', 'success')
-    return redirect(request.referrer or url_for('post_detail', post_id=parent_comment.post_id))
+    return redirect(request.referrer or url_for('post_detail', slug=parent_comment.post.slug))
 
 # Profile Routes
 @app.route('/profile')
