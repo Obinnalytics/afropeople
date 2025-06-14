@@ -105,12 +105,33 @@
                     </div>
 
                     <!-- Share Button -->
-                    <button class="flex items-center space-x-2 text-gray-600 hover:text-primary-600 transition-colors group">
-                        <div class="w-10 h-10 rounded-full bg-gray-100 group-hover:bg-primary-100 flex items-center justify-center transition-colors">
-                            <i class="fas fa-share group-hover:text-primary-600"></i>
+                    <div class="relative group">
+                        <button class="flex items-center space-x-2 text-gray-600 hover:text-primary-600 transition-colors group">
+                            <div class="w-10 h-10 rounded-full bg-gray-100 group-hover:bg-primary-100 flex items-center justify-center transition-colors">
+                                <i class="fas fa-share group-hover:text-primary-600"></i>
+                            </div>
+                            <span class="font-medium">Share</span>
+                        </button>
+                        <div class="absolute bottom-full left-0 mb-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+                            <div class="py-2">
+                                <button onclick="copyToClipboard('{{ request.url_root }}post/{{ post.id }}')" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <i class="fas fa-link mr-2"></i>Copy Link
+                                </button>
+                                <a href="https://twitter.com/intent/tweet?text={{ post.title | urlencode }}&url={{ request.url_root }}post/{{ post.id }}" target="_blank" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <i class="fab fa-twitter mr-2"></i>Share on Twitter
+                                </a>
+                                <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url_root }}post/{{ post.id }}" target="_blank" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <i class="fab fa-facebook mr-2"></i>Share on Facebook
+                                </a>
+                                <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.url_root }}post/{{ post.id }}" target="_blank" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <i class="fab fa-linkedin mr-2"></i>Share on LinkedIn
+                                </a>
+                                <a href="https://wa.me/?text={{ post.title | urlencode }}%20{{ request.url_root }}post/{{ post.id }}" target="_blank" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <i class="fab fa-whatsapp mr-2"></i>Share on WhatsApp
+                                </a>
+                            </div>
                         </div>
-                        <span class="font-medium">Share</span>
-                    </button>
+                    </div>
                 </div>
 
                 <!-- Reading Time -->
@@ -275,4 +296,48 @@
         </div>
     </div>
 </div>
+
+<!-- Share Functionality -->
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        // Show success message
+        showToast('Link copied to clipboard!', 'success');
+    }, function(err) {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showToast('Link copied to clipboard!', 'success');
+    });
+}
+
+function showToast(message, type) {
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 px-4 py-2 rounded-lg text-white z-50 transition-all duration-300 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+    toast.textContent = message;
+    
+    // Add to page
+    document.body.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => {
+        toast.style.transform = 'translateX(0)';
+        toast.style.opacity = '1';
+    }, 100);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        toast.style.transform = 'translateX(100%)';
+        toast.style.opacity = '0';
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 300);
+    }, 3000);
+}
+</script>
 {% endblock %} 
