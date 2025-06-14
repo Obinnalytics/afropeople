@@ -4,16 +4,16 @@
 
 {% block content %}
 <!-- Hero Section -->
-<div class="bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl p-8 mb-8 text-white shadow-lg">
+<div class="bg-gradient-to-r from-primary-500 to-primary-600 rounded-xl p-4 mb-4 text-white shadow-lg">
     <div class="text-center">
-        <h1 class="text-3xl font-bold mb-4">Welcome to AfroPeople Community</h1>
-        <p class="text-primary-100 mb-6 text-lg">Connect, share, and celebrate our African diaspora heritage together</p>
+        <h1 class="text-2xl font-bold mb-2">Welcome to AfroPeople Community</h1>
+        <p class="text-primary-100 mb-4 text-base">Connect, share, and celebrate our African diaspora heritage together</p>
         {% if not current_user.is_authenticated %}
-        <div class="flex justify-center space-x-4">
-            <a href="{{ url_for('register') }}" class="bg-white text-primary-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+        <div class="flex justify-center space-x-3">
+            <a href="{{ url_for('register') }}" class="bg-white text-primary-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
                 Join Community
             </a>
-            <a href="{{ url_for('login') }}" class="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors">
+            <a href="{{ url_for('login') }}" class="border-2 border-white text-white px-4 py-2 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors">
                 Sign In
             </a>
         </div>
@@ -23,8 +23,8 @@
 
 <!-- Create Post Button -->
 {% if current_user.is_authenticated %}
-<div class="mb-8">
-    <a href="{{ url_for('create_post') }}" class="inline-flex items-center bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-6 py-3 rounded-xl font-semibold shadow-sm transition-all duration-200">
+<div class="mb-4">
+    <a href="{{ url_for('create_post') }}" class="inline-flex items-center bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-4 py-2 rounded-lg font-semibold shadow-sm transition-all duration-200">
         <i class="fas fa-plus mr-2"></i>
         Create New Post
     </a>
@@ -32,20 +32,20 @@
 {% endif %}
 
 <!-- Posts Section -->
-<div class="space-y-6">
+<div class="space-y-4">
     {% if posts.items %}
         {% for post in posts.items %}
-        <article class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200">
+        <article class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200">
             <!-- Post Header -->
-            <div class="p-6 pb-4">
-                <div class="flex items-start justify-between mb-4">
+            <div class="p-4 pb-3">
+                <div class="flex items-start justify-between mb-3">
                     <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-gradient-to-r from-primary-400 to-primary-500 rounded-full flex items-center justify-center">
-                            <i class="fas fa-user text-white text-sm"></i>
+                        <div class="w-8 h-8 bg-gradient-to-r from-primary-400 to-primary-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-user text-white text-xs"></i>
                         </div>
                         <div>
-                            <h3 class="font-semibold text-gray-900">{{ post.author.username }}</h3>
-                            <div class="flex items-center text-sm text-gray-500 space-x-2">
+                            <h3 class="font-semibold text-gray-900 text-sm">{{ post.author.username }}</h3>
+                            <div class="flex items-center text-xs text-gray-500 space-x-2">
                                 <span>{{ post.date_posted.strftime('%B %d, %Y at %I:%M %p') if post.date_posted else 'N/A' }}</span>
                                 {% if post.category %}
                                 <span>•</span>
@@ -58,7 +58,7 @@
                     </div>
                     {% if current_user.is_authenticated and (current_user.id == post.author_id or current_user.is_admin) %}
                     <div class="relative group">
-                        <button class="text-gray-400 hover:text-gray-600 p-2">
+                        <button class="text-gray-400 hover:text-gray-600 p-1">
                             <i class="fas fa-ellipsis-h"></i>
                         </button>
                         <div class="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
@@ -72,12 +72,12 @@
                 </div>
 
                 <!-- Post Title -->
-                <h2 class="text-xl font-bold text-gray-900 mb-3 hover:text-primary-600 transition-colors">
+                <h2 class="text-lg font-bold text-gray-900 mb-2 hover:text-primary-600 transition-colors">
                     <a href="{{ url_for('post_detail', post_id=post.id) }}">{{ post.title }}</a>
                 </h2>
 
                 <!-- Post Content Preview -->
-                <div class="text-gray-700 mb-4 leading-relaxed">
+                <div class="text-gray-700 mb-3 leading-relaxed text-sm">
                     {{ post.content | nl2br | truncate_words(50) | safe }}
                     {% if post.content | length > 200 %}
                     <a href="{{ url_for('post_detail', post_id=post.id) }}" class="text-primary-600 hover:text-primary-700 font-medium ml-2">
@@ -88,7 +88,7 @@
 
                 <!-- AdSense In-Content Ad (every 3rd post) -->
                 {% if loop.index % 3 == 0 and adsense and adsense.is_enabled and adsense.in_content_ad_code %}
-                <div class="my-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                <div class="my-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
                     <div class="text-xs text-gray-500 mb-2 text-center">Advertisement</div>
                     <div class="text-center">
                         {{ adsense.in_content_ad_code|safe }}
@@ -98,38 +98,38 @@
             </div>
 
             <!-- Post Actions -->
-            <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
+            <div class="px-4 py-3 bg-gray-50 border-t border-gray-100">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-6">
+                    <div class="flex items-center space-x-4">
                         <!-- Like Button -->
                         {% if current_user.is_authenticated %}
                         <form method="POST" action="{{ url_for('like_post', post_id=post.id) }}" class="inline">
-                            <button type="submit" class="flex items-center space-x-2 text-gray-600 hover:text-primary-600 transition-colors group">
+                            <button type="submit" class="flex items-center space-x-1 text-gray-600 hover:text-primary-600 transition-colors group">
                                 <i class="fas fa-heart {% if post.id in user_likes %}text-red-500{% endif %} group-hover:scale-110 transition-transform"></i>
-                                <span class="text-sm font-medium">{{ post.get_like_count() }}</span>
+                                <span class="text-xs font-medium">{{ post.get_like_count() }}</span>
                             </button>
                         </form>
                         {% else %}
-                        <div class="flex items-center space-x-2 text-gray-600">
+                        <div class="flex items-center space-x-1 text-gray-600">
                             <i class="fas fa-heart"></i>
-                            <span class="text-sm font-medium">{{ post.get_like_count() }}</span>
+                            <span class="text-xs font-medium">{{ post.get_like_count() }}</span>
                         </div>
                         {% endif %}
 
                         <!-- Comments -->
-                        <a href="{{ url_for('post_detail', post_id=post.id) }}" class="flex items-center space-x-2 text-gray-600 hover:text-primary-600 transition-colors">
+                        <a href="{{ url_for('post_detail', post_id=post.id) }}" class="flex items-center space-x-1 text-gray-600 hover:text-primary-600 transition-colors">
                             <i class="fas fa-comment"></i>
-                            <span class="text-sm font-medium">{{ post.comments|length }} comments</span>
+                            <span class="text-xs font-medium">{{ post.comments|length }} comments</span>
                         </a>
 
                         <!-- Share -->
-                        <button class="flex items-center space-x-2 text-gray-600 hover:text-primary-600 transition-colors">
+                        <button class="flex items-center space-x-1 text-gray-600 hover:text-primary-600 transition-colors">
                             <i class="fas fa-share"></i>
-                            <span class="text-sm font-medium">Share</span>
+                            <span class="text-xs font-medium">Share</span>
                         </button>
                     </div>
 
-                    <a href="{{ url_for('post_detail', post_id=post.id) }}" class="text-primary-600 hover:text-primary-700 font-medium text-sm">
+                    <a href="{{ url_for('post_detail', post_id=post.id) }}" class="text-primary-600 hover:text-primary-700 font-medium text-xs">
                         View Discussion →
                     </a>
                 </div>
@@ -139,10 +139,10 @@
 
         <!-- Pagination -->
         {% if posts.pages > 1 %}
-        <div class="flex justify-center mt-12">
-            <nav class="flex items-center space-x-2">
+        <div class="flex justify-center mt-6">
+            <nav class="flex items-center space-x-1">
                 {% if posts.has_prev %}
-                <a href="{{ url_for('index', page=posts.prev_num) }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                <a href="{{ url_for('index', page=posts.prev_num) }}" class="px-3 py-1 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                     <i class="fas fa-chevron-left mr-1"></i>Previous
                 </a>
                 {% endif %}
@@ -150,21 +150,21 @@
                 {% for page_num in posts.iter_pages() %}
                     {% if page_num %}
                         {% if page_num != posts.page %}
-                        <a href="{{ url_for('index', page=page_num) }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        <a href="{{ url_for('index', page=page_num) }}" class="px-3 py-1 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                             {{ page_num }}
                         </a>
                         {% else %}
-                        <span class="px-4 py-2 text-sm font-medium text-white bg-primary-600 border border-primary-600 rounded-lg">
+                        <span class="px-3 py-1 text-xs font-medium text-white bg-primary-600 border border-primary-600 rounded-lg">
                             {{ page_num }}
                         </span>
                         {% endif %}
                     {% else %}
-                    <span class="px-2 py-2 text-sm text-gray-500">…</span>
+                    <span class="px-2 py-1 text-xs text-gray-500">…</span>
                     {% endif %}
                 {% endfor %}
 
                 {% if posts.has_next %}
-                <a href="{{ url_for('index', page=posts.next_num) }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                <a href="{{ url_for('index', page=posts.next_num) }}" class="px-3 py-1 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                     Next<i class="fas fa-chevron-right ml-1"></i>
                 </a>
                 {% endif %}
@@ -174,19 +174,19 @@
 
     {% else %}
         <!-- Empty State -->
-        <div class="text-center py-16">
-            <div class="w-24 h-24 bg-gradient-to-r from-primary-100 to-primary-200 rounded-full flex items-center justify-center mx-auto mb-6">
-                <i class="fas fa-comments text-primary-600 text-3xl"></i>
+        <div class="text-center py-12">
+            <div class="w-20 h-20 bg-gradient-to-r from-primary-100 to-primary-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-comments text-primary-600 text-2xl"></i>
             </div>
-            <h3 class="text-xl font-semibold text-gray-900 mb-2">No posts yet</h3>
-            <p class="text-gray-600 mb-6">Be the first to start a conversation in our community!</p>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">No posts yet</h3>
+            <p class="text-gray-600 mb-4">Be the first to start a conversation in our community!</p>
             {% if current_user.is_authenticated %}
-            <a href="{{ url_for('create_post') }}" class="inline-flex items-center bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-6 py-3 rounded-xl font-semibold shadow-sm transition-all duration-200">
+            <a href="{{ url_for('create_post') }}" class="inline-flex items-center bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-4 py-2 rounded-lg font-semibold shadow-sm transition-all duration-200">
                 <i class="fas fa-plus mr-2"></i>
                 Create First Post
             </a>
             {% else %}
-            <a href="{{ url_for('register') }}" class="inline-flex items-center bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-6 py-3 rounded-xl font-semibold shadow-sm transition-all duration-200">
+            <a href="{{ url_for('register') }}" class="inline-flex items-center bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-4 py-2 rounded-lg font-semibold shadow-sm transition-all duration-200">
                 <i class="fas fa-user-plus mr-2"></i>
                 Join to Post
             </a>
@@ -198,27 +198,16 @@
 <!-- Custom Styles -->
 <style>
     /* Smooth animations */
-    .transition-all {
-        transition: all 0.2s ease-in-out;
+    .group:hover .group-hover\:scale-110 {
+        transform: scale(1.1);
     }
     
-    /* Hover effects */
-    article:hover {
-        transform: translateY(-2px);
+    .group:hover .group-hover\:opacity-100 {
+        opacity: 1;
     }
     
-    /* Custom scrollbar for content */
-    .overflow-y-auto::-webkit-scrollbar {
-        width: 4px;
-    }
-    
-    .overflow-y-auto::-webkit-scrollbar-track {
-        background: #f1f5f9;
-    }
-    
-    .overflow-y-auto::-webkit-scrollbar-thumb {
-        background: #22c55e;
-        border-radius: 2px;
+    .group:hover .group-hover\:visible {
+        visibility: visible;
     }
 </style>
 {% endblock %} 
