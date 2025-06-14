@@ -145,6 +145,36 @@
         </div>
     </nav>
 
+    <!-- Header Advertisements -->
+    {% if header_ads %}
+        {% for ad in header_ads %}
+            {% if ad.should_display_to_user(current_user) %}
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="bg-gray-100 px-6 py-2">
+                        <span class="text-sm text-gray-500">Advertisement</span>
+                    </div>
+                    <div class="p-4 text-center">
+                        <a href="{{ url_for('track_ad_click', ad_id=ad.id) }}" 
+                           target="_blank" 
+                           class="block hover:opacity-80 transition-opacity">
+                            {% if ad.get_image_url() %}
+                                <img src="{{ ad.get_image_url() }}" 
+                                     alt="{{ ad.title }}" 
+                                     class="w-full h-auto rounded-lg mb-3 max-h-24 object-cover">
+                            {% endif %}
+                            <h4 class="font-bold text-lg text-gray-900 mb-2">{{ ad.title }}</h4>
+                            {% if ad.description %}
+                                <p class="text-sm text-gray-600">{{ ad.description }}</p>
+                            {% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -187,6 +217,39 @@
                     </div>
                 </div>
 
+                <!-- Left Sidebar Advertisements -->
+                {% set left_sidebar_ads = sidebar_ads | selectattr('placement', 'equalto', 'left_sidebar') | list %}
+                {% if left_sidebar_ads %}
+                    {% for ad in left_sidebar_ads %}
+                        {% if ad.should_display_to_user(current_user) %}
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div class="bg-gray-100 px-4 py-3">
+                                <span class="text-sm text-gray-500">Advertisement</span>
+                            </div>
+                            <div class="p-4">
+                                <a href="{{ url_for('track_ad_click', ad_id=ad.id) }}" 
+                                   target="_blank" 
+                                   class="block hover:opacity-80 transition-opacity">
+                                    {% if ad.get_image_url() %}
+                                        <img src="{{ ad.get_image_url() }}" 
+                                             alt="{{ ad.title }}" 
+                                             class="w-full h-auto rounded-lg mb-3 max-w-full">
+                                    {% endif %}
+                                    <h4 class="font-bold text-lg text-gray-900 mb-2">{{ ad.title }}</h4>
+                                    {% if ad.description %}
+                                        <p class="text-sm text-gray-600 mb-3">{{ ad.description }}</p>
+                                    {% endif %}
+                                    <div class="text-xs text-gray-400 flex justify-between items-center">
+                                        <span>{{ ad.ad_type.title() }} Ad</span>
+                                        <span>Priority {{ ad.priority }}</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+
                 <!-- Welcome Box -->
                 <div class="bg-gradient-to-br from-primary-50 to-primary-100 rounded-2xl p-4 border border-primary-200">
                     <div class="flex items-center mb-4">
@@ -208,6 +271,39 @@
 
             <!-- Main Content Area -->
             <div class="lg:col-span-6">
+                <!-- Content Area Advertisements (Top) -->
+                {% set content_ads = sidebar_ads | selectattr('placement', 'equalto', 'content') | list %}
+                {% if content_ads %}
+                    {% for ad in content_ads %}
+                        {% if ad.should_display_to_user(current_user) %}
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+                            <div class="bg-gray-100 px-6 py-3">
+                                <span class="text-sm text-gray-500">Advertisement</span>
+                            </div>
+                            <div class="p-6 text-center">
+                                <a href="{{ url_for('track_ad_click', ad_id=ad.id) }}" 
+                                   target="_blank" 
+                                   class="block hover:opacity-80 transition-opacity">
+                                    {% if ad.get_image_url() %}
+                                        <img src="{{ ad.get_image_url() }}" 
+                                             alt="{{ ad.title }}" 
+                                             class="w-full h-auto rounded-lg mb-4 max-h-64 object-cover">
+                                    {% endif %}
+                                    <h4 class="font-bold text-xl text-gray-900 mb-3">{{ ad.title }}</h4>
+                                    {% if ad.description %}
+                                        <p class="text-gray-600 mb-4">{{ ad.description }}</p>
+                                    {% endif %}
+                                    <div class="text-sm text-gray-400 flex justify-between items-center">
+                                        <span>{{ ad.ad_type.title() }} Ad</span>
+                                        <span>Priority {{ ad.priority }}</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+
                 {% block content %}{% endblock %}
             </div>
 
@@ -425,9 +521,77 @@
                     {% endif %}
                 </div>
                 {% endif %}
+
+                <!-- Custom Advertisements (Right Sidebar) -->
+                {% set right_sidebar_ads = sidebar_ads | selectattr('placement', 'equalto', 'sidebar') | list %}
+                {% if right_sidebar_ads %}
+                    {% for ad in right_sidebar_ads %}
+                        {% if ad.should_display_to_user(current_user) %}
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-4">
+                            <div class="bg-gray-100 px-4 py-3">
+                                <span class="text-sm text-gray-500">Advertisement</span>
+                            </div>
+                            <div class="p-4">
+                                <a href="{{ url_for('track_ad_click', ad_id=ad.id) }}" 
+                                   target="_blank" 
+                                   class="block hover:opacity-80 transition-opacity"
+                                   onclick="this.querySelector('script').innerHTML += 'ad.impression_count += 1;'">
+                                    {% if ad.get_image_url() %}
+                                        <img src="{{ ad.get_image_url() }}" 
+                                             alt="{{ ad.title }}" 
+                                             class="w-full h-auto rounded-lg mb-3 max-w-full">
+                                    {% endif %}
+                                    <h4 class="font-bold text-lg text-gray-900 mb-2">{{ ad.title }}</h4>
+                                    {% if ad.description %}
+                                        <p class="text-sm text-gray-600 mb-3">{{ ad.description }}</p>
+                                    {% endif %}
+                                    <div class="text-xs text-gray-400 flex justify-between items-center">
+                                        <span>{{ ad.ad_type.title() }} Ad</span>
+                                        <span>Priority {{ ad.priority }}</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
             </div>
         </div>
     </div>
+
+    <!-- Footer Advertisements -->
+    {% if footer_ads %}
+        {% for ad in footer_ads %}
+            {% if ad.should_display_to_user(current_user) %}
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="bg-gray-100 px-6 py-3">
+                        <span class="text-sm text-gray-500">Advertisement</span>
+                    </div>
+                    <div class="p-6 text-center">
+                        <a href="{{ url_for('track_ad_click', ad_id=ad.id) }}" 
+                           target="_blank" 
+                           class="block hover:opacity-80 transition-opacity">
+                            {% if ad.get_image_url() %}
+                                <img src="{{ ad.get_image_url() }}" 
+                                     alt="{{ ad.title }}" 
+                                     class="w-full h-auto rounded-lg mb-4 max-h-24 object-cover">
+                            {% endif %}
+                            <h4 class="font-bold text-xl text-gray-900 mb-3">{{ ad.title }}</h4>
+                            {% if ad.description %}
+                                <p class="text-gray-600 mb-4">{{ ad.description }}</p>
+                            {% endif %}
+                            <div class="text-sm text-gray-400 flex justify-between items-center">
+                                <span>{{ ad.ad_type.title() }} Ad</span>
+                                <span>Priority {{ ad.priority }}</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
 
     <!-- AdSense Footer Ad -->
     {% if adsense and adsense.is_enabled and adsense.footer_ad_code %}

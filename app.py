@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import StringField, TextAreaField, PasswordField, SubmitField, SelectField, BooleanField, DateField
+from wtforms import StringField, TextAreaField, PasswordField, SubmitField, SelectField, BooleanField, DateField, DateTimeLocalField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, Optional, URL
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -215,6 +215,73 @@ class AdSense(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+class Advertisement(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    image_url = db.Column(db.String(500))  # For external URLs
+    image_file = db.Column(db.String(255))  # For uploaded images
+    link_url = db.Column(db.String(500))
+    ad_type = db.Column(db.String(50), default='banner')  # banner, sidebar, popup, text
+    placement = db.Column(db.String(50), default='sidebar')  # sidebar, header, footer, content
+    target_audience = db.Column(db.String(50), default='all')  # all, members, guests
+    priority = db.Column(db.Integer, default=1)  # 1-10, higher = more priority
+    is_active = db.Column(db.Boolean, default=True)
+    click_count = db.Column(db.Integer, default=0)
+    impression_count = db.Column(db.Integer, default=0)
+    start_date = db.Column(db.DateTime, default=datetime.utcnow)
+    end_date = db.Column(db.DateTime)
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    creator = db.relationship('User', backref='created_ads', lazy=True)
+    
+    def get_image_url(self):
+        """Get the appropriate image URL (uploaded file or external URL)"""
+        if self.image_file:
+            return url_for('static', filename=f'uploads/ads/{self.image_file}')
+        elif self.image_url:
+            return self.image_url
+        return None
+    
+    def is_expired(self):
+        """Check if advertisement has expired"""
+        if self.end_date:
+            return datetime.utcnow() > self.end_date
+        return False
+    
+    def get_ctr(self):
+        """Calculate click-through rate"""
+        if self.impression_count > 0:
+            return round((self.click_count / self.impression_count) * 100, 2)
+        return 0.0
+    
+    def should_display_to_user(self, user=None):
+        """Check if ad should be displayed to the current user"""
+        if not self.is_active or self.is_expired():
+            return False
+        
+        if self.target_audience == 'all':
+            return True
+        elif self.target_audience == 'members':
+            return user and user.is_authenticated
+        elif self.target_audience == 'guests':
+            return not (user and user.is_authenticated)
+        
+        return True
+
+class AdClick(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ad_id = db.Column(db.Integer, db.ForeignKey('advertisement.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    ip_address = db.Column(db.String(45))
+    user_agent = db.Column(db.String(500))
+    clicked_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    advertisement = db.relationship('Advertisement', backref='clicks', lazy=True)
+    user = db.relationship('User', backref='ad_clicks', lazy=True)
+
 # Forms
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -268,6 +335,39 @@ class AdSenseForm(FlaskForm):
     responsive_ads = BooleanField('Use Responsive Ad Units', default=True)
     submit = SubmitField('Save AdSense Settings')
 
+class AdvertisementForm(FlaskForm):
+    title = StringField('Advertisement Title', validators=[DataRequired(), Length(max=200)])
+    description = TextAreaField('Description', validators=[Length(max=500)])
+    image_file = FileField('Upload Image', validators=[FileAllowed(['jpg', 'png', 'jpeg', 'gif'], 'Images only!')])
+    image_url = StringField('Or Image URL', validators=[Optional(), URL(), Length(max=500)])
+    link_url = StringField('Link URL', validators=[Optional(), URL(), Length(max=500)])
+    ad_type = SelectField('Advertisement Type', 
+                         choices=[('banner', 'Banner Ad'), 
+                                ('text', 'Text Ad'),
+                                ('image', 'Image Ad'),
+                                ('video', 'Video Ad')],
+                         default='banner')
+    placement = SelectField('Placement Location', 
+                           choices=[('sidebar', 'Right Sidebar - 300x250px (Medium Rectangle)'), 
+                                  ('left_sidebar', 'Left Sidebar - 300x250px (Medium Rectangle)'),
+                                  ('header', 'Header - 728x90px (Leaderboard)'),
+                                  ('footer', 'Footer - 728x90px (Leaderboard)'),
+                                  ('content', 'Content Area - 336x280px (Large Rectangle)'),
+                                  ('popup', 'Popup - 300x300px (Square)')],
+                           default='sidebar')
+    target_audience = SelectField('Target Audience', 
+                                 choices=[('all', 'All Users'), 
+                                        ('members', 'Members Only'),
+                                        ('guests', 'Guests Only')],
+                                 default='all')
+    priority = SelectField('Priority Level', 
+                          choices=[(str(i), f'Priority {i}') for i in range(1, 11)],
+                          default='5')
+    start_date = DateTimeLocalField('Start Date', validators=[Optional()])
+    end_date = DateTimeLocalField('End Date', validators=[Optional()])
+    is_active = BooleanField('Active', default=True)
+    submit = SubmitField('Save Advertisement')
+
 class ProfileForm(FlaskForm):
     username = StringField('Username', validators=[Length(min=4, max=20)])
     email = StringField('Email')
@@ -313,6 +413,29 @@ def save_profile_picture(form_picture):
     img = img.crop((left, top, right, bottom))
     img.thumbnail(output_size)
     img.save(picture_path)
+    
+    return picture_fn
+
+def save_advertisement_image(form_picture):
+    """Save and resize advertisement image"""
+    random_hex = secrets.token_hex(8)
+    _, f_ext = os.path.splitext(form_picture.filename)
+    picture_fn = random_hex + f_ext
+    picture_path = os.path.join(app.root_path, 'static/uploads/ads', picture_fn)
+    
+    # Create directory if it doesn't exist
+    os.makedirs(os.path.dirname(picture_path), exist_ok=True)
+    
+    # Resize image based on common ad sizes
+    img = Image.open(form_picture)
+    
+    # Convert to RGB if necessary (for PNG with transparency)
+    if img.mode in ("RGBA", "P"):
+        img = img.convert("RGB")
+    
+    # Don't resize, keep original dimensions for flexibility
+    # Admin can upload images in the correct sizes
+    img.save(picture_path, quality=95)
     
     return picture_fn
 
@@ -801,6 +924,171 @@ def admin_adsense():
     
     return render_template('admin/adsense.html', form=form, adsense=adsense)
 
+# Advertisement Management Routes
+@app.route('/admin/advertisements')
+@login_required
+@admin_required
+def admin_advertisements():
+    page = request.args.get('page', 1, type=int)
+    advertisements = Advertisement.query.order_by(Advertisement.created_at.desc()).paginate(
+        page=page, per_page=10, error_out=False)
+    return render_template('admin/advertisements.html', advertisements=advertisements)
+
+@app.route('/admin/advertisements/add', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_add_advertisement():
+    form = AdvertisementForm()
+    if form.validate_on_submit():
+        # Handle image upload
+        image_filename = None
+        if form.image_file.data:
+            image_filename = save_advertisement_image(form.image_file.data)
+        
+        advertisement = Advertisement(
+            title=form.title.data,
+            description=form.description.data,
+            image_file=image_filename,
+            image_url=form.image_url.data,
+            link_url=form.link_url.data,
+            ad_type=form.ad_type.data,
+            placement=form.placement.data,
+            target_audience=form.target_audience.data,
+            priority=int(form.priority.data),
+            start_date=form.start_date.data,
+            end_date=form.end_date.data,
+            is_active=form.is_active.data,
+            created_by=current_user.id
+        )
+        db.session.add(advertisement)
+        db.session.commit()
+        flash('Advertisement created successfully!', 'success')
+        return redirect(url_for('admin_advertisements'))
+    return render_template('admin/add_advertisement.html', form=form)
+
+@app.route('/admin/advertisements/<int:ad_id>/edit', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_edit_advertisement(ad_id):
+    advertisement = Advertisement.query.get_or_404(ad_id)
+    form = AdvertisementForm()
+    
+    if form.validate_on_submit():
+        # Handle image upload
+        if form.image_file.data:
+            image_filename = save_advertisement_image(form.image_file.data)
+            advertisement.image_file = image_filename
+        
+        advertisement.title = form.title.data
+        advertisement.description = form.description.data
+        advertisement.image_url = form.image_url.data
+        advertisement.link_url = form.link_url.data
+        advertisement.ad_type = form.ad_type.data
+        advertisement.placement = form.placement.data
+        advertisement.target_audience = form.target_audience.data
+        advertisement.priority = int(form.priority.data)
+        advertisement.start_date = form.start_date.data
+        advertisement.end_date = form.end_date.data
+        advertisement.is_active = form.is_active.data
+        advertisement.updated_at = datetime.utcnow()
+        db.session.commit()
+        flash('Advertisement updated successfully!', 'success')
+        return redirect(url_for('admin_advertisements'))
+    
+    elif request.method == 'GET':
+        form.title.data = advertisement.title
+        form.description.data = advertisement.description
+        # Don't populate image_file field for security reasons
+        form.image_url.data = advertisement.image_url
+        form.link_url.data = advertisement.link_url
+        form.ad_type.data = advertisement.ad_type
+        form.placement.data = advertisement.placement
+        form.target_audience.data = advertisement.target_audience
+        form.priority.data = str(advertisement.priority)
+        form.start_date.data = advertisement.start_date
+        form.end_date.data = advertisement.end_date
+        form.is_active.data = advertisement.is_active
+    
+    return render_template('admin/edit_advertisement.html', form=form, advertisement=advertisement)
+
+@app.route('/admin/advertisements/<int:ad_id>/toggle', methods=['POST'])
+@login_required
+@admin_required
+def admin_toggle_advertisement(ad_id):
+    advertisement = Advertisement.query.get_or_404(ad_id)
+    advertisement.is_active = not advertisement.is_active
+    advertisement.updated_at = datetime.utcnow()
+    db.session.commit()
+    status = 'activated' if advertisement.is_active else 'deactivated'
+    flash(f'Advertisement "{advertisement.title}" has been {status}!', 'success')
+    return redirect(url_for('admin_advertisements'))
+
+@app.route('/admin/advertisements/<int:ad_id>/delete', methods=['POST'])
+@login_required
+@admin_required
+def admin_delete_advertisement(ad_id):
+    advertisement = Advertisement.query.get_or_404(ad_id)
+    db.session.delete(advertisement)
+    db.session.commit()
+    flash(f'Advertisement "{advertisement.title}" has been deleted!', 'success')
+    return redirect(url_for('admin_advertisements'))
+
+@app.route('/admin/advertisements/<int:ad_id>/stats')
+@login_required
+@admin_required
+def admin_advertisement_stats(ad_id):
+    advertisement = Advertisement.query.get_or_404(ad_id)
+    
+    # Get click statistics
+    total_clicks = AdClick.query.filter_by(ad_id=ad_id).count()
+    recent_clicks = AdClick.query.filter_by(ad_id=ad_id).filter(
+        AdClick.clicked_at >= datetime.utcnow() - timedelta(days=30)
+    ).count()
+    
+    # Get daily click data for the last 30 days
+    daily_clicks = []
+    for i in range(30):
+        date = datetime.utcnow() - timedelta(days=i)
+        clicks = AdClick.query.filter_by(ad_id=ad_id).filter(
+            AdClick.clicked_at >= date.replace(hour=0, minute=0, second=0),
+            AdClick.clicked_at < date.replace(hour=23, minute=59, second=59)
+        ).count()
+        daily_clicks.append({
+            'date': date.strftime('%Y-%m-%d'),
+            'clicks': clicks
+        })
+    
+    return render_template('admin/advertisement_stats.html', 
+                         advertisement=advertisement,
+                         total_clicks=total_clicks,
+                         recent_clicks=recent_clicks,
+                         daily_clicks=daily_clicks)
+
+# Advertisement Click Tracking
+@app.route('/ad/click/<int:ad_id>')
+def track_ad_click(ad_id):
+    advertisement = Advertisement.query.get_or_404(ad_id)
+    
+    # Record the click
+    click = AdClick(
+        ad_id=ad_id,
+        user_id=current_user.id if current_user.is_authenticated else None,
+        ip_address=request.remote_addr,
+        user_agent=request.headers.get('User-Agent', '')
+    )
+    db.session.add(click)
+    
+    # Update advertisement click count
+    advertisement.click_count += 1
+    db.session.commit()
+    
+    # Redirect to the advertisement link
+    if advertisement.link_url:
+        return redirect(advertisement.link_url)
+    else:
+        flash('Advertisement link not available', 'warning')
+        return redirect(url_for('index'))
+
 @app.context_processor
 def inject_sidebar_data():
     categories = Category.query.filter_by(is_active=True).all()
@@ -933,7 +1221,30 @@ def inject_sidebar_data():
         'likes_this_week': len(recent_new_likes)
     }
     
+    # Get active custom advertisements for all placements
+    sidebar_ads = Advertisement.query.filter(
+        Advertisement.placement.in_(['sidebar', 'left_sidebar', 'content']),
+        Advertisement.is_active == True
+    ).filter(
+        db.or_(Advertisement.end_date.is_(None), Advertisement.end_date > datetime.utcnow())
+    ).order_by(Advertisement.priority.desc()).all()
+    
+    header_ads = Advertisement.query.filter_by(
+        placement='header', 
+        is_active=True
+    ).filter(
+        db.or_(Advertisement.end_date.is_(None), Advertisement.end_date > datetime.utcnow())
+    ).order_by(Advertisement.priority.desc()).limit(1).all()
+    
+    footer_ads = Advertisement.query.filter_by(
+        placement='footer', 
+        is_active=True
+    ).filter(
+        db.or_(Advertisement.end_date.is_(None), Advertisement.end_date > datetime.utcnow())
+    ).order_by(Advertisement.priority.desc()).limit(2).all()
+    
     return dict(
+        categories=categories,
         sidebar_categories=categories,
         sidebar_recent_posts=recent_posts,
         forum_stats=forum_stats,
@@ -941,7 +1252,10 @@ def inject_sidebar_data():
         top_active_users=top_active_users,
         newest_members=newest_members,
         adsense=adsense,
-        should_display_ads=should_display_ads
+        should_display_ads=should_display_ads,
+        sidebar_ads=sidebar_ads,
+        header_ads=header_ads,
+        footer_ads=footer_ads
     )
 
 def init_db():
