@@ -46,8 +46,16 @@
             <div class="p-6 pb-4">
                 <div class="flex items-start justify-between mb-4">
                     <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-gradient-to-r from-primary-400 to-primary-500 rounded-full flex items-center justify-center">
-                            <i class="fas fa-user text-white text-sm"></i>
+                        <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-300">
+                            {% if post.author.profile_image and post.author.profile_image != 'default.jpg' %}
+                            <img src="{{ url_for('static', filename='uploads/profile_pics/' + post.author.profile_image) }}" 
+                                 alt="{{ post.author.username }}'s profile picture" 
+                                 class="w-full h-full object-cover">
+                            {% else %}
+                            <div class="w-full h-full bg-gradient-to-r from-primary-400 to-primary-500 flex items-center justify-center">
+                                <i class="fas fa-user text-white text-sm"></i>
+                            </div>
+                            {% endif %}
                         </div>
                         <div>
                             <h3 class="font-semibold text-gray-900">{{ post.author.username }}</h3>

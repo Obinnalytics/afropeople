@@ -34,8 +34,16 @@
                 <h1 class="text-3xl font-bold leading-tight mb-4">{{ post.title }}</h1>
                 <div class="flex items-center space-x-4">
                     <div class="flex items-center space-x-3">
-                        <div class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                            <i class="fas fa-user text-white"></i>
+                        <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-white/30">
+                            {% if post.author.profile_image and post.author.profile_image != 'default.jpg' %}
+                            <img src="{{ url_for('static', filename='uploads/profile_pics/' + post.author.profile_image) }}" 
+                                 alt="{{ post.author.username }}'s profile picture" 
+                                 class="w-full h-full object-cover">
+                            {% else %}
+                            <div class="w-full h-full bg-white/20 flex items-center justify-center">
+                                <i class="fas fa-user text-white"></i>
+                            </div>
+                            {% endif %}
                         </div>
                         <div>
                             <div class="font-semibold">{{ post.author.username }}</div>
@@ -184,8 +192,16 @@
             {% for comment in post.comments %}
             <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200 hover:shadow-sm transition-shadow">
                 <div class="flex items-start space-x-4">
-                    <div class="w-12 h-12 bg-gradient-to-r from-primary-400 to-primary-500 rounded-full flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-user text-white"></i>
+                    <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-primary-300 flex-shrink-0">
+                        {% if comment.author.profile_image and comment.author.profile_image != 'default.jpg' %}
+                        <img src="{{ url_for('static', filename='uploads/profile_pics/' + comment.author.profile_image) }}" 
+                             alt="{{ comment.author.username }}'s profile picture" 
+                             class="w-full h-full object-cover">
+                        {% else %}
+                        <div class="w-full h-full bg-gradient-to-r from-primary-400 to-primary-500 flex items-center justify-center">
+                            <i class="fas fa-user text-white"></i>
+                        </div>
+                        {% endif %}
                     </div>
                     <div class="flex-1">
                         <div class="flex items-center space-x-3 mb-3">
