@@ -234,7 +234,13 @@ def index():
     posts = Post.query.filter_by(is_active=True).order_by(Post.date_posted.desc()).paginate(
         page=page, per_page=10, error_out=False)
     categories = Category.query.filter_by(is_active=True).all()
-    return render_template('index.html', posts=posts, categories=categories)
+    
+    # Get user's liked posts if authenticated
+    user_likes = []
+    if current_user.is_authenticated:
+        user_likes = [like.post_id for like in current_user.likes]
+    
+    return render_template('index.html', posts=posts, categories=categories, user_likes=user_likes)
 
 @app.route('/category/<int:category_id>')
 def category(category_id):
@@ -243,7 +249,13 @@ def category(category_id):
     posts = Post.query.filter_by(category_id=category_id, is_active=True).order_by(Post.date_posted.desc()).paginate(
         page=page, per_page=10, error_out=False)
     categories = Category.query.filter_by(is_active=True).all()
-    return render_template('category.html', posts=posts, category=category, categories=categories)
+    
+    # Get user's liked posts if authenticated
+    user_likes = []
+    if current_user.is_authenticated:
+        user_likes = [like.post_id for like in current_user.likes]
+    
+    return render_template('category.html', posts=posts, category=category, categories=categories, user_likes=user_likes)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -319,7 +331,7 @@ def add_comment(post_id):
         flash('Your comment has been added!', 'success')
     return redirect(url_for('post_detail', post_id=post_id))
 
-@app.route('/like_post/<int:post_id>')
+@app.route('/like_post/<int:post_id>', methods=['POST'])
 @login_required
 def like_post(post_id):
     post = Post.query.get_or_404(post_id)
