@@ -1067,27 +1067,64 @@ def admin_advertisement_stats(ad_id):
 # Advertisement Click Tracking
 @app.route('/ad/click/<int:ad_id>')
 def track_ad_click(ad_id):
-    advertisement = Advertisement.query.get_or_404(ad_id)
+    ad = Advertisement.query.get_or_404(ad_id)
     
-    # Record the click
+    # Track the click
+    ad.click_count += 1
+    
+    # Create click record
     click = AdClick(
-        ad_id=ad_id,
+        ad_id=ad.id,
         user_id=current_user.id if current_user.is_authenticated else None,
         ip_address=request.remote_addr,
         user_agent=request.headers.get('User-Agent', '')
     )
-    db.session.add(click)
     
-    # Update advertisement click count
-    advertisement.click_count += 1
+    db.session.add(click)
     db.session.commit()
     
-    # Redirect to the advertisement link
-    if advertisement.link_url:
-        return redirect(advertisement.link_url)
+    # Redirect to the ad's link URL or back to home if no URL
+    if ad.link_url:
+        return redirect(ad.link_url)
     else:
-        flash('Advertisement link not available', 'warning')
         return redirect(url_for('index'))
+
+# Test routes for error pages (remove in production)
+@app.route('/test/404')
+def test_404():
+    abort(404)
+
+@app.route('/test/403')
+def test_403():
+    abort(403)
+
+@app.route('/test/500')
+def test_500():
+    abort(500)
+
+# Catch-all route for handling non-existent pages
+@app.route('/<path:path>')
+def catch_all(path):
+    # Check if it looks like a post slug
+    if '/' not in path and '-' in path:
+        # Could be a post slug, show 404 with suggestion
+        abort(404)
+    # For other paths, show generic 404
+    abort(404)
+
+# Error Handlers
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('errors/404.html'), 404
+
+@app.errorhandler(403)
+def forbidden_error(error):
+    return render_template('errors/403.html'), 403
+
+@app.errorhandler(500)
+def internal_error(error):
+    db.session.rollback()
+    return render_template('errors/500.html'), 500
 
 @app.context_processor
 def inject_sidebar_data():

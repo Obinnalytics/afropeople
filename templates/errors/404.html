@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found - AfroPeople{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+    <div class="max-w-lg w-full space-y-8 text-center">
+        <!-- 404 Illustration -->
+        <div class="relative">
+            <div class="text-9xl font-bold text-orange-200 select-none">404</div>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <div class="bg-white rounded-full p-6 shadow-lg">
+                    <i class="fas fa-search text-4xl text-orange-500"></i>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Error Message -->
+        <div class="space-y-4">
+            <h1 class="text-3xl font-bold text-gray-900">
+                Oops! Page Not Found
+            </h1>
+            <p class="text-lg text-gray-600 max-w-md mx-auto">
+                The page you're looking for seems to have wandered off into the digital diaspora. 
+                Don't worry, we'll help you find your way back to the community!
+            </p>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="space-y-4">
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{{ url_for('index') }}" 
+                   class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200 shadow-lg hover:shadow-xl">
+                    <i class="fas fa-home mr-2"></i>
+                    Go Home
+                </a>
+                <button onclick="history.back()" 
+                        class="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200 shadow-md hover:shadow-lg">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Go Back
+                </button>
+            </div>
+        </div>
+        
+        <!-- Helpful Links -->
+        <div class="pt-8 border-t border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                Popular Destinations
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {% for category in categories[:4] %}
+                <a href="{{ url_for('category', slug=category.slug) }}" 
+                   class="flex items-center p-3 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-200 hover:border-orange-300">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-gradient-to-r from-orange-400 to-red-400 rounded-full flex items-center justify-center">
+                            <i class="fas fa-folder text-white text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="ml-3 text-left">
+                        <p class="text-sm font-medium text-gray-900">{{ category.name }}</p>
+                        <p class="text-xs text-gray-500">{{ category.description[:30] }}...</p>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Search Box -->
+        <div class="pt-6">
+            <div class="max-w-md mx-auto">
+                <label for="search" class="sr-only">Search</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                    <form action="{{ url_for('index') }}" method="GET">
+                        <input id="search" 
+                               name="search" 
+                               type="text" 
+                               placeholder="Search for posts, topics, or discussions..." 
+                               class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200">
+                        <button type="submit" class="sr-only">Search</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contact Info -->
+        <div class="pt-8 text-sm text-gray-500">
+            <p>Still can't find what you're looking for?</p>
+            <p class="mt-1">
+                <a href="mailto:support@afropeople.com" class="text-orange-600 hover:text-orange-500 font-medium">
+                    Contact our support team
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Add some custom animations -->
+<style>
+@keyframes bounce-in {
+    0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    70% {
+        transform: scale(0.9);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.animate-bounce-in {
+    animation: bounce-in 0.6s ease-out;
+}
+
+/* Apply animation to the main content */
+.space-y-8 > * {
+    animation: bounce-in 0.6s ease-out;
+}
+
+.space-y-8 > *:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.space-y-8 > *:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+.space-y-8 > *:nth-child(4) {
+    animation-delay: 0.3s;
+}
+
+.space-y-8 > *:nth-child(5) {
+    animation-delay: 0.4s;
+}
+</style>
+{% endblock %} 
