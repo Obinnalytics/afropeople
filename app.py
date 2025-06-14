@@ -1100,16 +1100,16 @@ def inject_sidebar_data():
     total_comments = Comment.query.filter_by(is_active=True).count()
     total_likes = Like.query.count()
     
-    # Get recent activity (posts, comments, likes from last 7 days)
-    week_ago = datetime.utcnow() - timedelta(days=7)
+    # Get recent activity (posts, comments, likes from last 90 days for better visibility)
+    activity_cutoff = datetime.utcnow() - timedelta(days=90)
     
     recent_activity = []
     
     # Recent posts
     recent_new_posts = Post.query.filter(
         Post.is_active == True,
-        Post.date_posted >= week_ago
-    ).order_by(Post.date_posted.desc()).limit(3).all()
+        Post.date_posted >= activity_cutoff
+    ).order_by(Post.date_posted.desc()).limit(5).all()
     
     for post in recent_new_posts:
         recent_activity.append({
@@ -1128,9 +1128,9 @@ def inject_sidebar_data():
     # Recent comments
     recent_new_comments = Comment.query.filter(
         Comment.is_active == True,
-        Comment.date_posted >= week_ago,
+        Comment.date_posted >= activity_cutoff,
         Comment.parent_id == None  # Only top-level comments
-    ).order_by(Comment.date_posted.desc()).limit(3).all()
+    ).order_by(Comment.date_posted.desc()).limit(5).all()
     
     for comment in recent_new_comments:
         recent_activity.append({
@@ -1148,8 +1148,8 @@ def inject_sidebar_data():
     
     # Recent likes
     recent_new_likes = Like.query.filter(
-        Like.date_liked >= week_ago
-    ).order_by(Like.date_liked.desc()).limit(2).all()
+        Like.date_liked >= activity_cutoff
+    ).order_by(Like.date_liked.desc()).limit(3).all()
     
     for like in recent_new_likes:
         recent_activity.append({
@@ -1169,8 +1169,8 @@ def inject_sidebar_data():
     recent_activity.sort(key=lambda x: x['date'], reverse=True)
     recent_activity = recent_activity[:8]  # Limit to 8 most recent activities
     
-    # Get most active users (by posts + comments in last 30 days)
-    month_ago = datetime.utcnow() - timedelta(days=30)
+    # Get most active users (by posts + comments in last 90 days, or all time if none)
+    activity_period = datetime.utcnow() - timedelta(days=90)
     
     # This is a simplified approach - in production you might want to use raw SQL for better performance
     active_users = []
@@ -1180,14 +1180,26 @@ def inject_sidebar_data():
         recent_posts_count = Post.query.filter(
             Post.user_id == user.id,
             Post.is_active == True,
-            Post.date_posted >= month_ago
+            Post.date_posted >= activity_period
         ).count()
         
         recent_comments_count = Comment.query.filter(
             Comment.user_id == user.id,
             Comment.is_active == True,
-            Comment.date_posted >= month_ago
+            Comment.date_posted >= activity_period
         ).count()
+        
+        # If no recent activity, check all-time activity
+        if recent_posts_count == 0 and recent_comments_count == 0:
+            recent_posts_count = Post.query.filter(
+                Post.user_id == user.id,
+                Post.is_active == True
+            ).count()
+            
+            recent_comments_count = Comment.query.filter(
+                Comment.user_id == user.id,
+                Comment.is_active == True
+            ).count()
         
         activity_score = recent_posts_count * 3 + recent_comments_count  # Posts worth more
         
@@ -1203,11 +1215,16 @@ def inject_sidebar_data():
     active_users.sort(key=lambda x: x['score'], reverse=True)
     top_active_users = active_users[:5]
     
-    # Get newest members (last 30 days)
+    # Get newest members (last 90 days, or latest 5 if none in that period)
+    member_cutoff = datetime.utcnow() - timedelta(days=90)
     newest_members = User.query.filter(
         User.is_active == True,
-        User.date_joined >= month_ago
+        User.date_joined >= member_cutoff
     ).order_by(User.date_joined.desc()).limit(5).all()
+    
+    # If no new members in 90 days, get the 5 most recent members
+    if not newest_members:
+        newest_members = User.query.filter_by(is_active=True).order_by(User.date_joined.desc()).limit(5).all()
     
     adsense = AdSense.query.first()
     
