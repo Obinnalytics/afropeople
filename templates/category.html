@@ -152,7 +152,7 @@
         <div class="flex justify-center mt-12">
             <nav class="flex items-center space-x-2">
                 {% if posts.has_prev %}
-                <a href="{{ url_for('category', category_id=category.id, page=posts.prev_num) }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                <a href="{{ url_for('category', slug=category.slug, page=posts.prev_num) }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                     <i class="fas fa-chevron-left mr-1"></i>Previous
                 </a>
                 {% endif %}
@@ -160,7 +160,7 @@
                 {% for page_num in posts.iter_pages() %}
                     {% if page_num %}
                         {% if page_num != posts.page %}
-                        <a href="{{ url_for('category', category_id=category.id, page=page_num) }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        <a href="{{ url_for('category', slug=category.slug, page=page_num) }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                             {{ page_num }}
                         </a>
                         {% else %}
@@ -174,7 +174,7 @@
                 {% endfor %}
 
                 {% if posts.has_next %}
-                <a href="{{ url_for('category', category_id=category.id, page=posts.next_num) }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                <a href="{{ url_for('category', slug=category.slug, page=posts.next_num) }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                     Next<i class="fas fa-chevron-right ml-1"></i>
                 </a>
                 {% endif %}
@@ -226,27 +226,11 @@
                 <div class="text-sm text-gray-500">Total Posts</div>
             </div>
             <div class="text-center">
-                <div class="text-2xl font-bold text-primary-600">
-                    {% set total_comments = 0 %}
-                    {% if posts and posts.items %}
-                        {% for post in posts.items %}
-                            {% set total_comments = total_comments + post.comments|length %}
-                        {% endfor %}
-                    {% endif %}
-                    {{ total_comments }}
-                </div>
+                <div class="text-2xl font-bold text-primary-600">{{ total_comments }}</div>
                 <div class="text-sm text-gray-500">Comments</div>
             </div>
             <div class="text-center">
-                <div class="text-2xl font-bold text-primary-600">
-                    {% set total_likes = 0 %}
-                    {% if posts and posts.items %}
-                        {% for post in posts.items %}
-                            {% set total_likes = total_likes + post.get_like_count() %}
-                        {% endfor %}
-                    {% endif %}
-                    {{ total_likes }}
-                </div>
+                <div class="text-2xl font-bold text-primary-600">{{ total_likes }}</div>
                 <div class="text-sm text-gray-500">Likes</div>
             </div>
         </div>

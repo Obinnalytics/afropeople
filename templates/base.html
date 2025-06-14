@@ -179,7 +179,7 @@
                             <span class="font-medium">All Posts</span>
                         </a>
                         {% for category in categories %}
-                        <a href="{{ url_for('category', category_id=category.id) }}" class="flex items-center px-3 py-2 text-gray-700 hover:bg-primary-50 hover:text-primary-700 rounded-lg transition-all duration-200 group">
+                        <a href="{{ url_for('category', slug=category.slug) }}" class="flex items-center px-3 py-2 text-gray-700 hover:bg-primary-50 hover:text-primary-700 rounded-lg transition-all duration-200 group">
                             <i class="fas fa-folder mr-3 text-primary-500 group-hover:text-primary-600"></i>
                             <span class="font-medium">{{ category.name }}</span>
                         </a>

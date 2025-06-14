@@ -89,9 +89,32 @@ class User(UserMixin, db.Model):
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
+    slug = db.Column(db.String(100), unique=True, nullable=False)
     description = db.Column(db.Text)
     is_active = db.Column(db.Boolean, default=True)
     posts = db.relationship('Post', backref='category', lazy=True)
+
+    @staticmethod
+    def generate_slug(name):
+        """Generate a URL-friendly slug from the category name"""
+        # Convert to lowercase and replace spaces with hyphens
+        slug = re.sub(r'[^\w\s-]', '', name.lower())
+        slug = re.sub(r'[-\s]+', '-', slug)
+        slug = slug.strip('-')
+        
+        # Ensure slug is not empty
+        if not slug:
+            slug = 'category'
+        
+        # Check if slug already exists and make it unique
+        existing_category = Category.query.filter_by(slug=slug).first()
+        if existing_category:
+            counter = 1
+            while Category.query.filter_by(slug=f"{slug}-{counter}").first():
+                counter += 1
+            slug = f"{slug}-{counter}"
+        
+        return slug
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -280,11 +303,11 @@ def index():
     
     return render_template('index.html', posts=posts, categories=categories, user_likes=user_likes)
 
-@app.route('/category/<int:category_id>')
-def category(category_id):
+@app.route('/category/<slug>')
+def category(slug):
     page = request.args.get('page', 1, type=int)
-    category = Category.query.get_or_404(category_id)
-    posts = Post.query.filter_by(category_id=category_id, is_active=True).order_by(Post.date_posted.desc()).paginate(
+    category = Category.query.filter_by(slug=slug, is_active=True).first_or_404()
+    posts = Post.query.filter_by(category_id=category.id, is_active=True).order_by(Post.date_posted.desc()).paginate(
         page=page, per_page=10, error_out=False)
     categories = Category.query.filter_by(is_active=True).all()
     
@@ -293,7 +316,13 @@ def category(category_id):
     if current_user.is_authenticated:
         user_likes = [like.post_id for like in current_user.likes]
     
-    return render_template('category.html', posts=posts, category=category, categories=categories, user_likes=user_likes)
+    # Calculate category statistics for all posts in category
+    all_posts_in_category = Post.query.filter_by(category_id=category.id, is_active=True).all()
+    total_comments = sum(len(post.comments) for post in all_posts_in_category)
+    total_likes = sum(post.get_like_count() for post in all_posts_in_category)
+    
+    return render_template('category.html', posts=posts, category=category, categories=categories, 
+                         user_likes=user_likes, total_comments=total_comments, total_likes=total_likes)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -623,7 +652,14 @@ def admin_categories():
 def admin_add_category():
     form = CategoryForm()
     if form.validate_on_submit():
-        category = Category(name=form.name.data, description=form.description.data)
+        # Generate slug from name
+        slug = Category.generate_slug(form.name.data)
+        
+        category = Category(
+            name=form.name.data, 
+            slug=slug,
+            description=form.description.data
+        )
         db.session.add(category)
         db.session.commit()
         flash('Category added successfully!', 'success')
@@ -638,6 +674,10 @@ def admin_edit_category(category_id):
     form = CategoryForm()
     
     if form.validate_on_submit():
+        # Regenerate slug if name changed
+        if category.name != form.name.data:
+            category.slug = Category.generate_slug(form.name.data)
+        
         category.name = form.name.data
         category.description = form.description.data
         db.session.commit()
@@ -741,15 +781,17 @@ def init_db():
     db.create_all()
     
     if not Category.query.first():
-        categories = [
-            Category(name='General Discussion', description='General topics and discussions'),
-            Category(name='Technology', description='Tech news, programming, and digital trends'),
-            Category(name='Culture', description='African culture, traditions, and heritage'),
-            Category(name='Business', description='Entrepreneurship and business opportunities'),
-            Category(name='Education', description='Learning, schools, and educational resources')
+        categories_data = [
+            ('General Discussion', 'General topics and discussions'),
+            ('Technology', 'Tech news, programming, and digital trends'),
+            ('Culture', 'African culture, traditions, and heritage'),
+            ('Business', 'Entrepreneurship and business opportunities'),
+            ('Education', 'Learning, schools, and educational resources')
         ]
         
-        for category in categories:
+        for name, description in categories_data:
+            slug = Category.generate_slug(name)
+            category = Category(name=name, slug=slug, description=description)
             db.session.add(category)
         
         db.session.commit()
