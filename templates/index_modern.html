@@ -1,47 +1,39 @@
 {% extends "base.html" %}
 
-{% block title %}{{ category.name }} - AfroPeople{% endblock %}
-
 {% block content %}
-<!-- Category Header -->
-<div class="mb-8">
-    <div class="bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl p-8 text-white shadow-lg">
-        <div class="flex flex-col md:flex-row items-start md:items-center justify-between space-y-4 md:space-y-0">
-            <div class="flex items-center space-x-4">
-                <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
-                    <i class="fas fa-folder text-white text-2xl"></i>
-                </div>
-                <div>
-                    <h1 class="text-3xl font-bold mb-2">{{ category.name }}</h1>
-                    <p class="text-primary-100 text-lg">{{ category.description }}</p>
-                </div>
-            </div>
-            {% if current_user.is_authenticated %}
-            <a href="{{ url_for('create_post') }}" class="bg-white text-primary-600 px-6 py-3 rounded-xl font-semibold hover:bg-gray-100 transition-colors inline-flex items-center">
-                <i class="fas fa-plus mr-2"></i>
-                New Post
+<!-- Hero Section -->
+<div class="bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl p-8 mb-8 text-white shadow-lg">
+    <div class="text-center">
+        <h1 class="text-3xl font-bold mb-4">Welcome to AfroPeople Community</h1>
+        <p class="text-primary-100 mb-6 text-lg">Connect, share, and celebrate our African diaspora heritage together</p>
+        {% if not current_user.is_authenticated %}
+        <div class="flex justify-center space-x-4">
+            <a href="{{ url_for('register') }}" class="bg-white text-primary-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                Join Community
             </a>
-            {% endif %}
+            <a href="{{ url_for('login') }}" class="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors">
+                Sign In
+            </a>
         </div>
+        {% endif %}
     </div>
 </div>
 
-<!-- Navigation Breadcrumb -->
-<div class="mb-6">
-    <nav class="flex items-center space-x-2 text-sm">
-        <a href="{{ url_for('index') }}" class="text-gray-600 hover:text-primary-600 transition-colors">
-            <i class="fas fa-home mr-1"></i>Home
-        </a>
-        <i class="fas fa-chevron-right text-gray-400"></i>
-        <span class="text-gray-900 font-medium">{{ category.name }}</span>
-    </nav>
+<!-- Create Post Button -->
+{% if current_user.is_authenticated %}
+<div class="mb-8">
+    <a href="{{ url_for('create_post') }}" class="inline-flex items-center bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-6 py-3 rounded-xl font-semibold shadow-sm transition-all duration-200">
+        <i class="fas fa-plus mr-2"></i>
+        Create New Post
+    </a>
 </div>
+{% endif %}
 
 <!-- Posts Section -->
 <div class="space-y-6">
-    {% if posts.items %}
-        {% for post in posts.items %}
-        <article class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-200 hover:-translate-y-1">
+    {% if posts %}
+        {% for post in posts %}
+        <article class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200">
             <!-- Post Header -->
             <div class="p-6 pb-4">
                 <div class="flex items-start justify-between mb-4">
@@ -53,13 +45,28 @@
                             <h3 class="font-semibold text-gray-900">{{ post.author.username }}</h3>
                             <div class="flex items-center text-sm text-gray-500 space-x-2">
                                 <span>{{ post.date_posted.strftime('%B %d, %Y at %I:%M %p') if post.date_posted else 'N/A' }}</span>
+                                {% if post.category %}
                                 <span>•</span>
                                 <span class="bg-primary-100 text-primary-700 px-2 py-1 rounded-full text-xs font-medium">
-                                    {{ category.name }}
+                                    {{ post.category.name }}
                                 </span>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
+                    {% if current_user.is_authenticated and (current_user.id == post.author_id or current_user.is_admin) %}
+                    <div class="relative group">
+                        <button class="text-gray-400 hover:text-gray-600 p-2">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
+                        <div class="absolute right-0 mt-2 w-32 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                            <div class="py-1">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Edit</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
 
                 <!-- Post Title -->
@@ -76,6 +83,16 @@
                     </a>
                     {% endif %}
                 </div>
+
+                <!-- AdSense In-Content Ad (every 3rd post) -->
+                {% if loop.index % 3 == 0 and adsense and adsense.is_enabled and adsense.in_content_ad_code %}
+                <div class="my-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                    <div class="text-xs text-gray-500 mb-2 text-center">Advertisement</div>
+                    <div class="text-center">
+                        {{ adsense.in_content_ad_code|safe }}
+                    </div>
+                </div>
+                {% endif %}
             </div>
 
             <!-- Post Actions -->
@@ -87,20 +104,20 @@
                         <form method="POST" action="{{ url_for('like_post', post_id=post.id) }}" class="inline">
                             <button type="submit" class="flex items-center space-x-2 text-gray-600 hover:text-primary-600 transition-colors group">
                                 <i class="fas fa-heart {% if post.id in user_likes %}text-red-500{% endif %} group-hover:scale-110 transition-transform"></i>
-                                <span class="text-sm font-medium">{{ post.get_like_count() }}</span>
+                                <span class="text-sm font-medium">{{ post.likes|length }}</span>
                             </button>
                         </form>
                         {% else %}
                         <div class="flex items-center space-x-2 text-gray-600">
                             <i class="fas fa-heart"></i>
-                            <span class="text-sm font-medium">{{ post.get_like_count() }}</span>
+                            <span class="text-sm font-medium">{{ post.likes|length }}</span>
                         </div>
                         {% endif %}
 
                         <!-- Comments -->
                         <a href="{{ url_for('post_detail', post_id=post.id) }}" class="flex items-center space-x-2 text-gray-600 hover:text-primary-600 transition-colors">
                             <i class="fas fa-comment"></i>
-                            <span class="text-sm font-medium">{{ post.comments|length }}</span>
+                            <span class="text-sm font-medium">{{ post.comments|length }} comments</span>
                         </a>
 
                         <!-- Share -->
@@ -123,7 +140,7 @@
         <div class="flex justify-center mt-12">
             <nav class="flex items-center space-x-2">
                 {% if posts.has_prev %}
-                <a href="{{ url_for('category', category_id=category.id, page=posts.prev_num) }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                <a href="{{ url_for('index', page=posts.prev_num) }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                     <i class="fas fa-chevron-left mr-1"></i>Previous
                 </a>
                 {% endif %}
@@ -131,7 +148,7 @@
                 {% for page_num in posts.iter_pages() %}
                     {% if page_num %}
                         {% if page_num != posts.page %}
-                        <a href="{{ url_for('category', category_id=category.id, page=page_num) }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                        <a href="{{ url_for('index', page=page_num) }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                             {{ page_num }}
                         </a>
                         {% else %}
@@ -145,7 +162,7 @@
                 {% endfor %}
 
                 {% if posts.has_next %}
-                <a href="{{ url_for('category', category_id=category.id, page=posts.next_num) }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                <a href="{{ url_for('index', page=posts.next_num) }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                     Next<i class="fas fa-chevron-right ml-1"></i>
                 </a>
                 {% endif %}
@@ -157,10 +174,10 @@
         <!-- Empty State -->
         <div class="text-center py-16">
             <div class="w-24 h-24 bg-gradient-to-r from-primary-100 to-primary-200 rounded-full flex items-center justify-center mx-auto mb-6">
-                <i class="fas fa-folder-open text-primary-600 text-3xl"></i>
+                <i class="fas fa-comments text-primary-600 text-3xl"></i>
             </div>
-            <h3 class="text-xl font-semibold text-gray-900 mb-2">No posts in this category yet</h3>
-            <p class="text-gray-600 mb-6">Be the first to start a discussion in {{ category.name }}!</p>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">No posts yet</h3>
+            <p class="text-gray-600 mb-6">Be the first to start a conversation in our community!</p>
             {% if current_user.is_authenticated %}
             <a href="{{ url_for('create_post') }}" class="inline-flex items-center bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-6 py-3 rounded-xl font-semibold shadow-sm transition-all duration-200">
                 <i class="fas fa-plus mr-2"></i>
@@ -176,51 +193,30 @@
     {% endif %}
 </div>
 
-<!-- Back Navigation -->
-<div class="mt-8 pt-6 border-t border-gray-200">
-    <a href="{{ url_for('index') }}" class="inline-flex items-center text-gray-600 hover:text-primary-600 transition-colors">
-        <i class="fas fa-arrow-left mr-2"></i>
-        Back to All Posts
-    </a>
-</div>
-
-<!-- Category Stats -->
-<div class="mt-8">
-    <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl p-6 border border-gray-200">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <i class="fas fa-chart-line text-primary-500 mr-3"></i>
-            Category Statistics
-        </h3>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="text-center">
-                <div class="text-2xl font-bold text-primary-600">{{ posts.total if posts else 0 }}</div>
-                <div class="text-sm text-gray-500">Total Posts</div>
-            </div>
-            <div class="text-center">
-                <div class="text-2xl font-bold text-primary-600">
-                    {% set total_comments = 0 %}
-                    {% if posts and posts.items %}
-                        {% for post in posts.items %}
-                            {% set total_comments = total_comments + post.comments|length %}
-                        {% endfor %}
-                    {% endif %}
-                    {{ total_comments }}
-                </div>
-                <div class="text-sm text-gray-500">Comments</div>
-            </div>
-            <div class="text-center">
-                <div class="text-2xl font-bold text-primary-600">
-                    {% set total_likes = 0 %}
-                    {% if posts and posts.items %}
-                        {% for post in posts.items %}
-                            {% set total_likes = total_likes + post.get_like_count() %}
-                        {% endfor %}
-                    {% endif %}
-                    {{ total_likes }}
-                </div>
-                <div class="text-sm text-gray-500">Likes</div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
+<!-- Custom Styles -->
+<style>
+    /* Smooth animations */
+    .transition-all {
+        transition: all 0.2s ease-in-out;
+    }
+    
+    /* Hover effects */
+    article:hover {
+        transform: translateY(-2px);
+    }
+    
+    /* Custom scrollbar for content */
+    .overflow-y-auto::-webkit-scrollbar {
+        width: 4px;
+    }
+    
+    .overflow-y-auto::-webkit-scrollbar-track {
+        background: #f1f5f9;
+    }
+    
+    .overflow-y-auto::-webkit-scrollbar-thumb {
+        background: #22c55e;
+        border-radius: 2px;
+    }
+</style>
+{% endblock %} 

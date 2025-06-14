@@ -1,0 +1,59 @@
+DEMO ADSENSE CODES FOR TESTING
+=====================================
+
+Copy and paste these demo codes into your AdSense admin panel to see where ads will appear:
+
+1. PUBLISHER ID:
+ca-pub-1234567890123456
+
+2. HEADER AD CODE:
+<div style="background: linear-gradient(135deg, #e3f2fd, #bbdefb); border: 2px dashed #2196f3; padding: 20px; text-align: center; margin: 10px 0; border-radius: 8px;">
+    <h5 style="color: #1976d2; margin: 0;">📢 HEADER ADVERTISEMENT</h5>
+    <p style="margin: 5px 0; color: #666;">This is where your header ads will appear</p>
+    <small style="color: #999;">728x90 Banner Ad Space</small>
+</div>
+
+3. SIDEBAR AD CODE:
+<div style="background: linear-gradient(135deg, #f3e5f5, #e1bee7); border: 2px dashed #9c27b0; padding: 15px; text-align: center; margin: 10px 0; border-radius: 8px;">
+    <h6 style="color: #7b1fa2; margin: 0;">📱 SIDEBAR AD</h6>
+    <p style="margin: 5px 0; color: #666; font-size: 12px;">Right sidebar advertisement space</p>
+    <small style="color: #999;">300x250 Medium Rectangle</small>
+</div>
+
+4. FOOTER AD CODE:
+<div style="background: linear-gradient(135deg, #e8f5e8, #c8e6c9); border: 2px dashed #4caf50; padding: 20px; text-align: center; margin: 10px 0; border-radius: 8px;">
+    <h5 style="color: #388e3c; margin: 0;">🔻 FOOTER ADVERTISEMENT</h5>
+    <p style="margin: 5px 0; color: #666;">This appears at the bottom of every page</p>
+    <small style="color: #999;">728x90 Leaderboard Ad</small>
+</div>
+
+5. POST CONTENT AD CODE:
+<div style="background: linear-gradient(135deg, #fff3e0, #ffe0b2); border: 2px dashed #ff9800; padding: 15px; text-align: center; margin: 15px 0; border-radius: 8px;">
+    <h6 style="color: #f57c00; margin: 0;">📄 IN-CONTENT AD</h6>
+    <p style="margin: 5px 0; color: #666; font-size: 12px;">This appears within post content</p>
+    <small style="color: #999;">336x280 Large Rectangle</small>
+</div>
+
+TESTING INSTRUCTIONS:
+======================
+
+1. Go to: http://127.0.0.1:5000/admin/adsense
+2. Login as admin (username: admin, password: admin123)
+3. Copy and paste the codes above into the respective fields
+4. Set Publisher ID to: ca-pub-1234567890123456
+5. Toggle "Enable AdSense" to ON
+6. Click "Save AdSense Settings"
+7. Visit different pages to see where ads appear:
+   - Homepage: http://127.0.0.1:5000
+   - Any post detail page
+   - Category pages
+
+WHERE YOU'LL SEE THE ADS:
+========================
+
+✅ HEADER AD: At the very top of every page (in the <head> section)
+✅ SIDEBAR AD: In the right sidebar on all pages
+✅ FOOTER AD: At the bottom before the footer on every page  
+✅ POST CONTENT AD: Within individual post content areas
+
+The demo ads are color-coded and clearly labeled so you can easily identify each placement location! 

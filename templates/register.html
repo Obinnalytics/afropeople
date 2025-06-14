@@ -3,66 +3,185 @@
 {% block title %}Register - AfroPeople{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header bg-primary text-white text-center">
-                <h3><i class="fas fa-user-plus me-2"></i>Join AfroPeople</h3>
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <!-- Header -->
+        <div class="text-center">
+            <div class="mx-auto h-16 w-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center mb-6">
+                <i class="fas fa-user-plus text-2xl text-primary-600"></i>
             </div>
-            <div class="card-body">
-                <form method="POST">
-                    {{ form.hidden_tag() }}
-                    <div class="mb-3">
-                        {{ form.username.label(class="form-label") }}
-                        {{ form.username(class="form-control") }}
-                        {% if form.username.errors %}
-                            <div class="text-danger mt-1">
-                                {% for error in form.username.errors %}
-                                    <small>{{ error }}</small>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">Join AfroPeople</h2>
+            <p class="text-gray-600">Create your account and connect with the community</p>
+        </div>
+
+        <!-- Registration Form -->
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+            <form method="POST" class="space-y-6">
+                {{ form.hidden_tag() }}
+                
+                <!-- Username Field -->
+                <div>
+                    <label for="{{ form.username.id }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-user text-primary-500 mr-2"></i>Username
+                    </label>
+                    <div class="relative">
+                        {{ form.username(class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-gray-50 focus:bg-white", placeholder="Choose a unique username") }}
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <i class="fas fa-user text-gray-400"></i>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        {{ form.email.label(class="form-label") }}
-                        {{ form.email(class="form-control") }}
-                        {% if form.email.errors %}
-                            <div class="text-danger mt-1">
-                                {% for error in form.email.errors %}
-                                    <small>{{ error }}</small>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
+                    {% if form.username.errors %}
+                        <div class="mt-2">
+                            {% for error in form.username.errors %}
+                                <p class="text-sm text-red-600 flex items-center">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>{{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Email Field -->
+                <div>
+                    <label for="{{ form.email.id }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-envelope text-primary-500 mr-2"></i>Email Address
+                    </label>
+                    <div class="relative">
+                        {{ form.email(class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-gray-50 focus:bg-white", placeholder="Enter your email address") }}
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <i class="fas fa-envelope text-gray-400"></i>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        {{ form.password.label(class="form-label") }}
-                        {{ form.password(class="form-control") }}
-                        {% if form.password.errors %}
-                            <div class="text-danger mt-1">
-                                {% for error in form.password.errors %}
-                                    <small>{{ error }}</small>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
+                    {% if form.email.errors %}
+                        <div class="mt-2">
+                            {% for error in form.email.errors %}
+                                <p class="text-sm text-red-600 flex items-center">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>{{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Password Field -->
+                <div>
+                    <label for="{{ form.password.id }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-lock text-primary-500 mr-2"></i>Password
+                    </label>
+                    <div class="relative">
+                        {{ form.password(class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-gray-50 focus:bg-white", placeholder="Create a strong password") }}
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-gray-400"></i>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        {{ form.password2.label(class="form-label") }}
-                        {{ form.password2(class="form-control") }}
-                        {% if form.password2.errors %}
-                            <div class="text-danger mt-1">
-                                {% for error in form.password2.errors %}
-                                    <small>{{ error }}</small>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
+                    {% if form.password.errors %}
+                        <div class="mt-2">
+                            {% for error in form.password.errors %}
+                                <p class="text-sm text-red-600 flex items-center">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>{{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <p class="mt-1 text-xs text-gray-500">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Password must be at least 6 characters long
+                    </p>
+                </div>
+
+                <!-- Confirm Password Field -->
+                <div>
+                    <label for="{{ form.password2.id }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                        <i class="fas fa-shield-alt text-primary-500 mr-2"></i>Confirm Password
+                    </label>
+                    <div class="relative">
+                        {{ form.password2(class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-gray-50 focus:bg-white", placeholder="Confirm your password") }}
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <i class="fas fa-shield-alt text-gray-400"></i>
+                        </div>
                     </div>
-                    <div class="d-grid">
-                        {{ form.submit(class="btn btn-primary") }}
+                    {% if form.password2.errors %}
+                        <div class="mt-2">
+                            {% for error in form.password2.errors %}
+                                <p class="text-sm text-red-600 flex items-center">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>{{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Terms and Conditions -->
+                <div class="flex items-start">
+                    <div class="flex items-center h-5">
+                        <input id="terms" name="terms" type="checkbox" required class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
                     </div>
-                </form>
-                <hr>
-                <div class="text-center">
-                    <p>Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+                    <div class="ml-3 text-sm">
+                        <label for="terms" class="text-gray-700">
+                            I agree to the 
+                            <a href="#" class="font-medium text-primary-600 hover:text-primary-500 transition-colors">Terms of Service</a>
+                            and 
+                            <a href="#" class="font-medium text-primary-600 hover:text-primary-500 transition-colors">Privacy Policy</a>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div>
+                    {{ form.submit(class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 transform hover:scale-105") }}
+                </div>
+            </form>
+
+            <!-- Divider -->
+            <div class="mt-8">
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-4 bg-white text-gray-500 font-medium">Already a member?</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Login Link -->
+            <div class="mt-6 text-center">
+                <p class="text-gray-600">
+                    Already have an account? 
+                    <a href="{{ url_for('login') }}" class="font-semibold text-primary-600 hover:text-primary-500 transition-colors">
+                        Sign in here
+                        <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Community Benefits -->
+        <div class="mt-8 bg-gradient-to-r from-primary-50 to-primary-100 rounded-2xl p-6 border border-primary-200">
+            <h3 class="text-lg font-semibold text-primary-800 mb-4 text-center">
+                <i class="fas fa-star text-primary-600 mr-2"></i>
+                Join Our Growing Community
+            </h3>
+            <div class="grid grid-cols-2 gap-4 text-center">
+                <div class="bg-white rounded-xl p-4 shadow-sm">
+                    <i class="fas fa-users text-primary-500 text-2xl mb-2"></i>
+                    <p class="text-sm font-semibold text-gray-800">Connect</p>
+                    <p class="text-xs text-gray-600">Meet like-minded people</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 shadow-sm">
+                    <i class="fas fa-comments text-primary-500 text-2xl mb-2"></i>
+                    <p class="text-sm font-semibold text-gray-800">Discuss</p>
+                    <p class="text-xs text-gray-600">Share your thoughts</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 shadow-sm">
+                    <i class="fas fa-lightbulb text-primary-500 text-2xl mb-2"></i>
+                    <p class="text-sm font-semibold text-gray-800">Learn</p>
+                    <p class="text-xs text-gray-600">Discover new ideas</p>
+                </div>
+                <div class="bg-white rounded-xl p-4 shadow-sm">
+                    <i class="fas fa-heart text-primary-500 text-2xl mb-2"></i>
+                    <p class="text-sm font-semibold text-gray-800">Support</p>
+                    <p class="text-xs text-gray-600">Help each other grow</p>
                 </div>
             </div>
         </div>

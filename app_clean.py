@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session, abort
+﻿from flask import Flask, render_template, request, redirect, url_for, flash, session, abort
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_wtf import FlaskForm
@@ -65,7 +65,9 @@ class User(UserMixin, db.Model):
     is_admin = db.Column(db.Boolean, default=False)
     is_active = db.Column(db.Boolean, default=True)
     date_joined = db.Column(db.DateTime, default=datetime.utcnow)
-    profile_image = db.Column(db.String(255), default='default.jpg')
+    posts = db.relationship('Post', backref='author', lazy=True)
+    comments = db.relationship('Comment', backref='author', lazy=True)
+    likes = db.relationship('Like', backref='user', lazy=True)
     bio = db.Column(db.Text)
     location = db.Column(db.String(100))
     website = db.Column(db.String(200))
@@ -76,9 +78,6 @@ class User(UserMixin, db.Model):
     occupation = db.Column(db.String(100))
     interests = db.Column(db.Text)
     profile_updated_at = db.Column(db.DateTime)
-    posts = db.relationship('Post', backref='author', lazy=True)
-    comments = db.relationship('Comment', backref='author', lazy=True)
-    likes = db.relationship('Like', backref='user', lazy=True)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -126,11 +125,11 @@ class Like(db.Model):
 
 class AdSense(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    publisher_id = db.Column(db.String(50))
-    header_ad_code = db.Column(db.Text)
-    sidebar_ad_code = db.Column(db.Text)
-    footer_ad_code = db.Column(db.Text)
-    post_content_ad_code = db.Column(db.Text)
+    publisher_id = db.Column(db.String(50))  # Google AdSense Publisher ID
+    header_ad_code = db.Column(db.Text)  # Ad code for header
+    sidebar_ad_code = db.Column(db.Text)  # Ad code for sidebar
+    footer_ad_code = db.Column(db.Text)  # Ad code for footer
+    post_content_ad_code = db.Column(db.Text)  # Ad code for within post content
     is_enabled = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -194,39 +193,6 @@ class ProfileForm(FlaskForm):
     profile_image = FileField('Profile Picture', validators=[FileAllowed(['jpg', 'png', 'jpeg'], 'Images only!')])
     submit = SubmitField('Update Profile')
 
-# Helper Functions
-def save_profile_picture(form_picture):
-    """Save and resize profile picture"""
-    random_hex = secrets.token_hex(8)
-    _, f_ext = os.path.splitext(form_picture.filename)
-    picture_fn = random_hex + f_ext
-    picture_path = os.path.join(app.root_path, 'static/uploads/profile_pics', picture_fn)
-    
-    # Create directory if it doesn't exist
-    os.makedirs(os.path.dirname(picture_path), exist_ok=True)
-    
-    # Resize image
-    output_size = (300, 300)
-    img = Image.open(form_picture)
-    
-    # Convert to RGB if necessary (for PNG with transparency)
-    if img.mode in ("RGBA", "P"):
-        img = img.convert("RGB")
-    
-    # Create a square crop
-    width, height = img.size
-    min_dimension = min(width, height)
-    left = (width - min_dimension) // 2
-    top = (height - min_dimension) // 2
-    right = left + min_dimension
-    bottom = top + min_dimension
-    
-    img = img.crop((left, top, right, bottom))
-    img.thumbnail(output_size)
-    img.save(picture_path)
-    
-    return picture_fn
-
 # Routes
 @app.route('/')
 def index():
@@ -256,6 +222,7 @@ def login():
         if user and user.check_password(form.password.data) and user.is_active:
             login_user(user)
             flash('Login successful!', 'success')
+            # Redirect to admin dashboard if user is admin
             if user.is_admin:
                 return redirect(url_for('admin_dashboard'))
             return redirect(url_for('index'))
@@ -323,10 +290,10 @@ def add_comment(post_id):
 @login_required
 def like_post(post_id):
     post = Post.query.get_or_404(post_id)
-    existing_like = Like.query.filter_by(user_id=current_user.id, post_id=post_id).first()
+    like = Like.query.filter_by(user_id=current_user.id, post_id=post_id).first()
     
-    if existing_like:
-        db.session.delete(existing_like)
+    if like:
+        db.session.delete(like)
         db.session.commit()
         flash('Post unliked!', 'info')
     else:
@@ -335,101 +302,37 @@ def like_post(post_id):
         db.session.commit()
         flash('Post liked!', 'success')
     
-    return redirect(request.referrer or url_for('index'))
-
-# Profile Routes
-@app.route('/profile')
-@app.route('/profile/<username>')
-def profile(username=None):
-    if username is None:
-        if current_user.is_authenticated:
-            user = current_user
-        else:
-            flash('Please log in to view your profile.', 'info')
-            return redirect(url_for('login'))
-    else:
-        user = User.query.filter_by(username=username).first_or_404()
-    
-    posts = Post.query.filter_by(user_id=user.id, is_active=True).order_by(Post.date_posted.desc()).limit(5).all()
-    comments = Comment.query.filter_by(user_id=user.id, is_active=True).order_by(Comment.date_posted.desc()).limit(5).all()
-    
-    total_posts = Post.query.filter_by(user_id=user.id, is_active=True).count()
-    total_comments = Comment.query.filter_by(user_id=user.id, is_active=True).count()
-    total_likes = Like.query.join(Post).filter(Post.user_id == user.id).count()
-    
-    return render_template('profile.html', user=user, posts=posts, comments=comments,
-                         total_posts=total_posts, total_comments=total_comments, total_likes=total_likes)
-
-@app.route('/edit_profile', methods=['GET', 'POST'])
-@login_required
-def edit_profile():
-    form = ProfileForm()
-    
-    if form.validate_on_submit():
-        if form.profile_image.data:
-            try:
-                picture_file = save_profile_picture(form.profile_image.data)
-                current_user.profile_image = picture_file
-            except Exception as e:
-                flash('Error uploading image. Please try again.', 'danger')
-                return render_template('edit_profile.html', form=form)
-        
-        current_user.username = form.username.data
-        current_user.email = form.email.data
-        current_user.bio = form.bio.data
-        current_user.location = form.location.data
-        current_user.website = form.website.data
-        current_user.twitter_handle = form.twitter_handle.data
-        current_user.linkedin_url = form.linkedin_url.data
-        current_user.github_url = form.github_url.data
-        current_user.birth_date = form.birth_date.data
-        current_user.occupation = form.occupation.data
-        current_user.interests = form.interests.data
-        current_user.profile_updated_at = datetime.utcnow()
-        
-        db.session.commit()
-        flash('Your profile has been updated!', 'success')
-        return redirect(url_for('profile'))
-    
-    elif request.method == 'GET':
-        form.username.data = current_user.username
-        form.email.data = current_user.email
-        form.bio.data = current_user.bio
-        form.location.data = current_user.location
-        form.website.data = current_user.website
-        form.twitter_handle.data = current_user.twitter_handle
-        form.linkedin_url.data = current_user.linkedin_url
-        form.github_url.data = current_user.github_url
-        form.birth_date.data = current_user.birth_date
-        form.occupation.data = current_user.occupation
-        form.interests.data = current_user.interests
-    
-    return render_template('edit_profile.html', form=form)
+    return redirect(url_for('post_detail', post_id=post_id))
 
 # Admin Routes
 @app.route('/admin')
 @login_required
 @admin_required
 def admin_dashboard():
+    # Statistics
     total_users = User.query.count()
     total_posts = Post.query.count()
     total_comments = Comment.query.count()
     total_categories = Category.query.count()
     
-    recent_posts = Post.query.order_by(Post.date_posted.desc()).limit(5).all()
+    # Recent activities
     recent_users = User.query.order_by(User.date_joined.desc()).limit(5).all()
+    recent_posts = Post.query.order_by(Post.date_posted.desc()).limit(5).all()
     
     return render_template('admin/dashboard.html', 
-                         total_users=total_users, total_posts=total_posts,
-                         total_comments=total_comments, total_categories=total_categories,
-                         recent_posts=recent_posts, recent_users=recent_users)
+                         total_users=total_users,
+                         total_posts=total_posts,
+                         total_comments=total_comments,
+                         total_categories=total_categories,
+                         recent_users=recent_users,
+                         recent_posts=recent_posts)
 
 @app.route('/admin/users')
 @login_required
 @admin_required
 def admin_users():
     page = request.args.get('page', 1, type=int)
-    users = User.query.order_by(User.date_joined.desc()).paginate(page=page, per_page=20, error_out=False)
+    users = User.query.paginate(page=page, per_page=20, error_out=False)
     return render_template('admin/users.html', users=users)
 
 @app.route('/admin/users/<int:user_id>/edit', methods=['GET', 'POST'])
@@ -437,7 +340,7 @@ def admin_users():
 @admin_required
 def admin_edit_user(user_id):
     user = User.query.get_or_404(user_id)
-    form = EditUserForm()
+    form = EditUserForm(obj=user)
     
     if form.validate_on_submit():
         user.username = form.username.data
@@ -445,14 +348,8 @@ def admin_edit_user(user_id):
         user.is_admin = form.is_admin.data
         user.is_active = form.is_active.data
         db.session.commit()
-        flash('User updated successfully!', 'success')
+        flash(f'User {user.username} updated successfully!', 'success')
         return redirect(url_for('admin_users'))
-    
-    elif request.method == 'GET':
-        form.username.data = user.username
-        form.email.data = user.email
-        form.is_admin.data = user.is_admin
-        form.is_active.data = user.is_active
     
     return render_template('admin/edit_user.html', form=form, user=user)
 
@@ -467,7 +364,7 @@ def admin_delete_user(user_id):
     
     db.session.delete(user)
     db.session.commit()
-    flash('User deleted successfully!', 'success')
+    flash(f'User {user.username} deleted successfully!', 'success')
     return redirect(url_for('admin_users'))
 
 @app.route('/admin/posts')
@@ -485,8 +382,8 @@ def admin_toggle_post(post_id):
     post = Post.query.get_or_404(post_id)
     post.is_active = not post.is_active
     db.session.commit()
-    status = 'activated' if post.is_active else 'deactivated'
-    flash(f'Post {status} successfully!', 'success')
+    status = "activated" if post.is_active else "deactivated"
+    flash(f'Post "{post.title}" {status} successfully!', 'success')
     return redirect(url_for('admin_posts'))
 
 @app.route('/admin/posts/<int:post_id>/delete', methods=['POST'])
@@ -496,7 +393,7 @@ def admin_delete_post(post_id):
     post = Post.query.get_or_404(post_id)
     db.session.delete(post)
     db.session.commit()
-    flash('Post deleted successfully!', 'success')
+    flash(f'Post "{post.title}" deleted successfully!', 'success')
     return redirect(url_for('admin_posts'))
 
 @app.route('/admin/categories')
@@ -515,7 +412,7 @@ def admin_add_category():
         category = Category(name=form.name.data, description=form.description.data)
         db.session.add(category)
         db.session.commit()
-        flash('Category added successfully!', 'success')
+        flash(f'Category "{category.name}" added successfully!', 'success')
         return redirect(url_for('admin_categories'))
     return render_template('admin/add_category.html', form=form)
 
@@ -524,18 +421,14 @@ def admin_add_category():
 @admin_required
 def admin_edit_category(category_id):
     category = Category.query.get_or_404(category_id)
-    form = CategoryForm()
+    form = CategoryForm(obj=category)
     
     if form.validate_on_submit():
         category.name = form.name.data
         category.description = form.description.data
         db.session.commit()
-        flash('Category updated successfully!', 'success')
+        flash(f'Category "{category.name}" updated successfully!', 'success')
         return redirect(url_for('admin_categories'))
-    
-    elif request.method == 'GET':
-        form.name.data = category.name
-        form.description.data = category.description
     
     return render_template('admin/edit_category.html', form=form, category=category)
 
@@ -546,8 +439,8 @@ def admin_toggle_category(category_id):
     category = Category.query.get_or_404(category_id)
     category.is_active = not category.is_active
     db.session.commit()
-    status = 'activated' if category.is_active else 'deactivated'
-    flash(f'Category {status} successfully!', 'success')
+    status = "activated" if category.is_active else "deactivated"
+    flash(f'Category "{category.name}" {status} successfully!', 'success')
     return redirect(url_for('admin_categories'))
 
 @app.route('/admin/comments')
@@ -560,91 +453,3 @@ def admin_comments():
 
 @app.route('/admin/comments/<int:comment_id>/toggle', methods=['POST'])
 @login_required
-@admin_required
-def admin_toggle_comment(comment_id):
-    comment = Comment.query.get_or_404(comment_id)
-    comment.is_active = not comment.is_active
-    db.session.commit()
-    status = 'activated' if comment.is_active else 'deactivated'
-    flash(f'Comment {status} successfully!', 'success')
-    return redirect(url_for('admin_comments'))
-
-@app.route('/admin/comments/<int:comment_id>/delete', methods=['POST'])
-@login_required
-@admin_required
-def admin_delete_comment(comment_id):
-    comment = Comment.query.get_or_404(comment_id)
-    db.session.delete(comment)
-    db.session.commit()
-    flash('Comment deleted successfully!', 'success')
-    return redirect(url_for('admin_comments'))
-
-@app.route('/admin/adsense', methods=['GET', 'POST'])
-@login_required
-@admin_required
-def admin_adsense():
-    adsense = AdSense.query.first()
-    if not adsense:
-        adsense = AdSense()
-        db.session.add(adsense)
-        db.session.commit()
-    
-    form = AdSenseForm()
-    if form.validate_on_submit():
-        adsense.publisher_id = form.publisher_id.data
-        adsense.header_ad_code = form.header_ad_code.data
-        adsense.sidebar_ad_code = form.sidebar_ad_code.data
-        adsense.footer_ad_code = form.footer_ad_code.data
-        adsense.post_content_ad_code = form.post_content_ad_code.data
-        adsense.is_enabled = form.is_enabled.data
-        adsense.updated_at = datetime.utcnow()
-        db.session.commit()
-        flash('AdSense settings updated successfully!', 'success')
-        return redirect(url_for('admin_adsense'))
-    
-    elif request.method == 'GET':
-        form.publisher_id.data = adsense.publisher_id
-        form.header_ad_code.data = adsense.header_ad_code
-        form.sidebar_ad_code.data = adsense.sidebar_ad_code
-        form.footer_ad_code.data = adsense.footer_ad_code
-        form.post_content_ad_code.data = adsense.post_content_ad_code
-        form.is_enabled.data = adsense.is_enabled
-    
-    return render_template('admin/adsense.html', form=form)
-
-@app.context_processor
-def inject_sidebar_data():
-    categories = Category.query.filter_by(is_active=True).all()
-    recent_posts = Post.query.filter_by(is_active=True).order_by(Post.date_posted.desc()).limit(5).all()
-    
-    adsense = AdSense.query.first()
-    
-    return dict(
-        sidebar_categories=categories,
-        sidebar_recent_posts=recent_posts,
-        adsense=adsense
-    )
-
-def init_db():
-    """Initialize the database with tables and sample data"""
-    db.create_all()
-    
-    if not Category.query.first():
-        categories = [
-            Category(name='General Discussion', description='General topics and discussions'),
-            Category(name='Technology', description='Tech news, programming, and digital trends'),
-            Category(name='Culture', description='African culture, traditions, and heritage'),
-            Category(name='Business', description='Entrepreneurship and business opportunities'),
-            Category(name='Education', description='Learning, schools, and educational resources')
-        ]
-        
-        for category in categories:
-            db.session.add(category)
-        
-        db.session.commit()
-        print("Sample categories created!")
-
-if __name__ == '__main__':
-    with app.app_context():
-        init_db()
-    app.run(debug=True) 

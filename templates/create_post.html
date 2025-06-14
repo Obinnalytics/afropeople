@@ -3,56 +3,239 @@
 {% block title %}Create Post - AfroPeople{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header bg-success text-white">
-                <h3><i class="fas fa-plus me-2"></i>Create New Post</h3>
+<!-- Header Section -->
+<div class="mb-8">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Create New Post</h1>
+            <p class="text-gray-600">Share your thoughts, experiences, and stories with our community</p>
+        </div>
+        <a href="{{ url_for('index') }}" class="inline-flex items-center text-gray-600 hover:text-primary-600 transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Back to Posts
+        </a>
+    </div>
+</div>
+
+<!-- Create Post Form -->
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        <!-- Form Header -->
+        <div class="bg-gradient-to-r from-primary-500 to-primary-600 px-8 py-6">
+            <div class="flex items-center">
+                <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mr-4">
+                    <i class="fas fa-edit text-white text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-semibold text-white">Share Your Story</h2>
+                    <p class="text-primary-100 text-sm">Connect with the African diaspora community</p>
+                </div>
             </div>
-            <div class="card-body">
-                <form method="POST">
-                    {{ form.hidden_tag() }}
-                    <div class="mb-3">
-                        {{ form.title.label(class="form-label") }}
-                        {{ form.title(class="form-control") }}
-                        {% if form.title.errors %}
-                            <div class="text-danger mt-1">
-                                {% for error in form.title.errors %}
-                                    <small>{{ error }}</small>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-                    <div class="mb-3">
-                        <label for="category" class="form-label">Category</label>
-                        <select name="category" id="category" class="form-select" required>
-                            <option value="">Select a category</option>
+        </div>
+
+        <!-- Form Body -->
+        <div class="p-8">
+            <form method="POST" class="space-y-6">
+                {{ form.hidden_tag() }}
+                
+                <!-- Title Field -->
+                <div class="space-y-2">
+                    <label for="title" class="block text-sm font-semibold text-gray-900">
+                        <i class="fas fa-heading text-primary-500 mr-2"></i>Post Title
+                    </label>
+                    {{ form.title(class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors placeholder-gray-400", placeholder="Enter an engaging title for your post...") }}
+                    {% if form.title.errors %}
+                        <div class="mt-2">
+                            {% for error in form.title.errors %}
+                                <p class="text-sm text-red-600 flex items-center">
+                                    <i class="fas fa-exclamation-circle mr-2"></i>{{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Category Field -->
+                <div class="space-y-2">
+                    <label for="category" class="block text-sm font-semibold text-gray-900">
+                        <i class="fas fa-folder text-primary-500 mr-2"></i>Category
+                    </label>
+                    <div class="relative">
+                        <select name="category" id="category" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors appearance-none bg-white" required>
+                            <option value="" class="text-gray-400">Choose a category for your post</option>
                             {% for category in categories %}
-                            <option value="{{ category.id }}">{{ category.name }}</option>
+                            <option value="{{ category.id }}" class="text-gray-900">{{ category.name }}</option>
                             {% endfor %}
                         </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                            <i class="fas fa-chevron-down text-gray-400"></i>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        {{ form.content.label(class="form-label") }}
-                        {{ form.content(class="form-control", rows="10") }}
-                        {% if form.content.errors %}
-                            <div class="text-danger mt-1">
-                                {% for error in form.content.errors %}
-                                    <small>{{ error }}</small>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                        <div class="form-text">Share your thoughts, questions, or stories with the community.</div>
+                    <p class="text-sm text-gray-500">Select the most appropriate category for your post</p>
+                </div>
+
+                <!-- Content Field -->
+                <div class="space-y-2">
+                    <label for="content" class="block text-sm font-semibold text-gray-900">
+                        <i class="fas fa-align-left text-primary-500 mr-2"></i>Content
+                    </label>
+                    {{ form.content(class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors placeholder-gray-400 resize-none", rows="12", placeholder="Share your thoughts, experiences, questions, or stories with the community. Be authentic and engaging...") }}
+                    {% if form.content.errors %}
+                        <div class="mt-2">
+                            {% for error in form.content.errors %}
+                                <p class="text-sm text-red-600 flex items-center">
+                                    <i class="fas fa-exclamation-circle mr-2"></i>{{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="flex items-center justify-between">
+                        <p class="text-sm text-gray-500">
+                            <i class="fas fa-lightbulb text-yellow-500 mr-1"></i>
+                            Tip: Use clear paragraphs and be respectful to foster meaningful discussions
+                        </p>
+                        <span class="text-sm text-gray-400" id="char-count">0 characters</span>
                     </div>
-                    <div class="d-flex justify-content-between">
-                        <a href="{{ url_for('index') }}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left me-1"></i>Cancel
-                        </a>
-                        {{ form.submit(class="btn btn-success") }}
+                </div>
+
+                <!-- Guidelines Box -->
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
+                    <h3 class="text-sm font-semibold text-blue-900 mb-3 flex items-center">
+                        <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                        Community Guidelines
+                    </h3>
+                    <ul class="text-sm text-blue-800 space-y-1">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-blue-500 mr-2 mt-0.5 text-xs"></i>
+                            Be respectful and inclusive in your discussions
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-blue-500 mr-2 mt-0.5 text-xs"></i>
+                            Share authentic experiences and meaningful content
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-blue-500 mr-2 mt-0.5 text-xs"></i>
+                            Avoid spam, offensive language, or inappropriate content
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                    <a href="{{ url_for('index') }}" class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-xl text-gray-700 bg-white hover:bg-gray-50 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 font-medium">
+                        <i class="fas fa-times mr-2"></i>
+                        Cancel
+                    </a>
+                    
+                    <div class="flex items-center space-x-4">
+                        <button type="button" class="inline-flex items-center px-6 py-3 border border-primary-300 rounded-xl text-primary-700 bg-primary-50 hover:bg-primary-100 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all duration-200 font-medium">
+                            <i class="fas fa-eye mr-2"></i>
+                            Preview
+                        </button>
+                        
+                        {{ form.submit(class="inline-flex items-center px-8 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-xl font-semibold shadow-sm focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all duration-200") }}
                     </div>
-                </form>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Success Tips Sidebar -->
+<div class="mt-8 max-w-4xl mx-auto">
+    <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
+        <h3 class="text-lg font-semibold text-green-900 mb-4 flex items-center">
+            <i class="fas fa-star text-green-500 mr-3"></i>
+            Tips for Great Posts
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="flex items-start space-x-3">
+                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-heart text-white text-sm"></i>
+                </div>
+                <div>
+                    <h4 class="font-medium text-green-900">Be Authentic</h4>
+                    <p class="text-sm text-green-700">Share genuine experiences and perspectives</p>
+                </div>
+            </div>
+            <div class="flex items-start space-x-3">
+                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-comments text-white text-sm"></i>
+                </div>
+                <div>
+                    <h4 class="font-medium text-green-900">Engage Others</h4>
+                    <p class="text-sm text-green-700">Ask questions to spark discussions</p>
+                </div>
+            </div>
+            <div class="flex items-start space-x-3">
+                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-globe-africa text-white text-sm"></i>
+                </div>
+                <div>
+                    <h4 class="font-medium text-green-900">Cultural Pride</h4>
+                    <p class="text-sm text-green-700">Celebrate our rich African heritage</p>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Character Counter Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const contentTextarea = document.getElementById('content');
+    const charCount = document.getElementById('char-count');
+    
+    if (contentTextarea && charCount) {
+        function updateCharCount() {
+            const count = contentTextarea.value.length;
+            charCount.textContent = count + ' characters';
+            
+            // Change color based on length
+            if (count > 1000) {
+                charCount.className = 'text-sm text-green-600 font-medium';
+            } else if (count > 500) {
+                charCount.className = 'text-sm text-yellow-600';
+            } else {
+                charCount.className = 'text-sm text-gray-400';
+            }
+        }
+        
+        contentTextarea.addEventListener('input', updateCharCount);
+        updateCharCount(); // Initial count
+    }
+    
+    // Auto-resize textarea
+    if (contentTextarea) {
+        contentTextarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    }
+});
+</script>
+
+<!-- Custom Styles -->
+<style>
+    /* Custom select arrow */
+    select {
+        background-image: none;
+    }
+    
+    /* Focus states */
+    input:focus, select:focus, textarea:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+    }
+    
+    /* Smooth transitions */
+    input, select, textarea {
+        transition: all 0.2s ease-in-out;
+    }
+    
+    /* Hover effects */
+    input:hover, select:hover, textarea:hover {
+        border-color: #86efac;
+    }
+</style>
 {% endblock %} 

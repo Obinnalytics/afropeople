@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile - AfroPeople{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="mb-8">
+    <div class="bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl p-8 text-white shadow-lg">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold mb-2">Edit Your Profile</h1>
+                <p class="text-primary-100 text-lg">Update your information and customize your profile</p>
+            </div>
+            <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+                <i class="fas fa-user-edit text-white text-2xl"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Form -->
+<div class="max-w-4xl mx-auto">
+    <form method="POST" enctype="multipart/form-data" class="space-y-8">
+        {{ form.hidden_tag() }}
+        
+        <!-- Profile Picture Section -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-8 py-6 border-b border-gray-200">
+                <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                    <i class="fas fa-camera text-primary-500 mr-3"></i>
+                    Profile Picture
+                </h2>
+            </div>
+            
+            <div class="p-8">
+                <div class="flex flex-col md:flex-row items-start space-y-6 md:space-y-0 md:space-x-8">
+                    <!-- Current Profile Picture -->
+                    <div class="flex-shrink-0">
+                        <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 shadow-lg">
+                            {% if current_user.profile_image and current_user.profile_image != 'default.jpg' %}
+                            <img src="{{ url_for('static', filename='uploads/profile_pics/' + current_user.profile_image) }}" 
+                                 alt="Current profile picture" 
+                                 class="w-full h-full object-cover"
+                                 id="profile-preview">
+                            {% else %}
+                            <div class="w-full h-full bg-gradient-to-r from-primary-400 to-primary-500 flex items-center justify-center" id="profile-preview">
+                                <i class="fas fa-user text-white text-4xl"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Upload Section -->
+                    <div class="flex-1">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Choose New Profile Picture
+                            </label>
+                            {{ form.profile_image(class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 transition-colors", onchange="previewImage(this)") }}
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            <p class="mb-2"><i class="fas fa-info-circle mr-1"></i> Recommended: Square image, at least 300x300 pixels</p>
+                            <p><i class="fas fa-file-image mr-1"></i> Supported formats: JPG, PNG, JPEG (max 16MB)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Basic Information -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-8 py-6 border-b border-gray-200">
+                <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                    <i class="fas fa-user text-primary-500 mr-3"></i>
+                    Basic Information
+                </h2>
+            </div>
+            
+            <div class="p-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                        {{ form.username(class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors") }}
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        {{ form.email(class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", readonly=true) }}
+                        <p class="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                        {{ form.location(class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="City, Country") }}
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Occupation</label>
+                        {{ form.occupation(class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="Your job title or profession") }}
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Birth Date</label>
+                        {{ form.birth_date(class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors") }}
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Bio</label>
+                    {{ form.bio(class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-none", rows="4", placeholder="Tell us about yourself...") }}
+                    <p class="text-xs text-gray-500 mt-1">Maximum 500 characters</p>
+                </div>
+                
+                <div class="mt-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Interests</label>
+                    {{ form.interests(class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-none", rows="3", placeholder="What are you passionate about?") }}
+                    <p class="text-xs text-gray-500 mt-1">Maximum 300 characters</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Social Links -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-8 py-6 border-b border-gray-200">
+                <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                    <i class="fas fa-link text-primary-500 mr-3"></i>
+                    Social Links
+                </h2>
+            </div>
+            
+            <div class="p-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-globe mr-1"></i> Website
+                        </label>
+                        {{ form.website(class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="https://yourwebsite.com") }}
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fab fa-twitter mr-1"></i> Twitter Handle
+                        </label>
+                        {{ form.twitter_handle(class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="username (without @)") }}
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fab fa-linkedin mr-1"></i> LinkedIn URL
+                        </label>
+                        {{ form.linkedin_url(class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="https://linkedin.com/in/username") }}
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fab fa-github mr-1"></i> GitHub URL
+                        </label>
+                        {{ form.github_url(class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="https://github.com/username") }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+            <a href="{{ url_for('profile') }}" class="inline-flex items-center px-6 py-3 border border-gray-300 rounded-xl text-gray-700 bg-white hover:bg-gray-50 font-medium transition-colors">
+                <i class="fas fa-times mr-2"></i>
+                Cancel
+            </a>
+            
+            {{ form.submit(class="inline-flex items-center bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-8 py-3 rounded-xl font-semibold shadow-sm transition-all duration-200") }}
+        </div>
+    </form>
+</div>
+
+<!-- JavaScript for Image Preview -->
+<script>
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            const preview = document.getElementById('profile-preview');
+            preview.innerHTML = `<img src="${e.target.result}" alt="Profile preview" class="w-full h-full object-cover">`;
+        }
+        
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+// Character counters
+document.addEventListener('DOMContentLoaded', function() {
+    const bioField = document.querySelector('textarea[name="bio"]');
+    const interestsField = document.querySelector('textarea[name="interests"]');
+    
+    if (bioField) {
+        const bioCounter = document.createElement('div');
+        bioCounter.className = 'text-xs text-gray-500 mt-1';
+        bioField.parentNode.appendChild(bioCounter);
+        
+        function updateBioCounter() {
+            const remaining = 500 - bioField.value.length;
+            bioCounter.textContent = `${remaining} characters remaining`;
+            bioCounter.className = remaining < 0 ? 'text-xs text-red-500 mt-1' : 'text-xs text-gray-500 mt-1';
+        }
+        
+        bioField.addEventListener('input', updateBioCounter);
+        updateBioCounter();
+    }
+    
+    if (interestsField) {
+        const interestsCounter = document.createElement('div');
+        interestsCounter.className = 'text-xs text-gray-500 mt-1';
+        interestsField.parentNode.appendChild(interestsCounter);
+        
+        function updateInterestsCounter() {
+            const remaining = 300 - interestsField.value.length;
+            interestsCounter.textContent = `${remaining} characters remaining`;
+            interestsCounter.className = remaining < 0 ? 'text-xs text-red-500 mt-1' : 'text-xs text-gray-500 mt-1';
+        }
+        
+        interestsField.addEventListener('input', updateInterestsCounter);
+        updateInterestsCounter();
+    }
+});
+</script>
+{% endblock %} 

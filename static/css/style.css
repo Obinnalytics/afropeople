@@ -11,6 +11,53 @@ body {
     font-weight: bold;
 }
 
+/* Sidebar Enhancements */
+.sidebar-card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.sidebar-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+}
+
+.online-indicator {
+    width: 8px;
+    height: 8px;
+    background-color: #28a745;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+    }
+}
+
+.sidebar-stats {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+}
+
+.sidebar-activity .list-group-item {
+    border: none;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.sidebar-activity .list-group-item:hover {
+    background-color: #f1f3f4;
+    transform: translateX(5px);
+}
+
 /* Post Cards */
 .post-card {
     transition: all 0.3s ease;
@@ -92,7 +139,28 @@ footer {
     margin-top: auto;
 }
 
+/* Three-column layout enhancements */
+.left-sidebar {
+    position: sticky;
+    top: 20px;
+    height: fit-content;
+}
+
+.right-sidebar {
+    position: sticky;
+    top: 20px;
+    height: fit-content;
+}
+
 /* Responsive Design */
+@media (max-width: 992px) {
+    /* On medium screens, stack right sidebar below content */
+    .right-sidebar {
+        position: static;
+        margin-top: 2rem;
+    }
+}
+
 @media (max-width: 768px) {
     .navbar-brand {
         font-size: 1.25rem;
@@ -105,6 +173,21 @@ footer {
     
     .btn-group-vertical .btn {
         margin-bottom: 0.5rem;
+    }
+    
+    /* Stack all sidebars on mobile */
+    .left-sidebar, .right-sidebar {
+        position: static;
+        margin-top: 1rem;
+    }
+    
+    /* Adjust column layout for mobile */
+    .mobile-stack {
+        order: 2;
+    }
+    
+    .mobile-content {
+        order: 1;
     }
 }
 
