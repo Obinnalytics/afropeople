@@ -51,6 +51,22 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def moderator_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or not current_user.is_moderator:
+            abort(403)
+        return f(*args, **kwargs)
+    return decorated_function
+
+def admin_or_moderator_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or not current_user.can_moderate():
+            abort(403)
+        return f(*args, **kwargs)
+    return decorated_function
+
 def should_display_ads(adsense):
     """Determine if ads should be displayed based on user status and settings"""
     if not adsense or not adsense.is_enabled:
@@ -77,6 +93,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(128))
     is_admin = db.Column(db.Boolean, default=False)
+    is_moderator = db.Column(db.Boolean, default=False)
     is_active = db.Column(db.Boolean, default=True)
     date_joined = db.Column(db.DateTime, default=datetime.utcnow)
     profile_image = db.Column(db.String(255), default='default.jpg')
@@ -99,6 +116,19 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    def can_moderate(self):
+        """Check if user can moderate (admin or moderator)"""
+        return self.is_admin or self.is_moderator
+    
+    def get_role_display(self):
+        """Get user role for display purposes"""
+        if self.is_admin:
+            return "Administrator"
+        elif self.is_moderator:
+            return "Moderator"
+        else:
+            return "Member"
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -314,6 +344,7 @@ class EditUserForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=4, max=20)])
     email = StringField('Email', validators=[DataRequired(), Email()])
     is_admin = BooleanField('Admin User')
+    is_moderator = BooleanField('Moderator User')
     is_active = BooleanField('Active User')
     submit = SubmitField('Update User')
 
@@ -486,7 +517,7 @@ def login():
         if user and user.check_password(form.password.data) and user.is_active:
             login_user(user)
             flash('Login successful!', 'success')
-            if user.is_admin:
+            if user.can_moderate():  # Redirect both admins and moderators
                 return redirect(url_for('admin_dashboard'))
             return redirect(url_for('index'))
         else:
@@ -700,7 +731,7 @@ def edit_profile():
 # Admin Routes
 @app.route('/admin')
 @login_required
-@admin_required
+@admin_or_moderator_required
 def admin_dashboard():
     try:
         # Basic counts with error handling
@@ -761,7 +792,7 @@ def admin_dashboard():
 
 @app.route('/admin/users')
 @login_required
-@admin_required
+@admin_or_moderator_required
 def admin_users():
     page = request.args.get('page', 1, type=int)
     users = User.query.order_by(User.date_joined.desc()).paginate(page=page, per_page=20, error_out=False)
@@ -769,7 +800,7 @@ def admin_users():
 
 @app.route('/admin/users/<int:user_id>/edit', methods=['GET', 'POST'])
 @login_required
-@admin_required
+@admin_or_moderator_required
 def admin_edit_user(user_id):
     user = User.query.get_or_404(user_id)
     form = EditUserForm()
@@ -778,6 +809,7 @@ def admin_edit_user(user_id):
         user.username = form.username.data
         user.email = form.email.data
         user.is_admin = form.is_admin.data
+        user.is_moderator = form.is_moderator.data
         user.is_active = form.is_active.data
         db.session.commit()
         flash('User updated successfully!', 'success')
@@ -787,13 +819,14 @@ def admin_edit_user(user_id):
         form.username.data = user.username
         form.email.data = user.email
         form.is_admin.data = user.is_admin
+        form.is_moderator.data = user.is_moderator
         form.is_active.data = user.is_active
     
     return render_template('admin/edit_user.html', form=form, user=user)
 
 @app.route('/admin/users/<int:user_id>/delete', methods=['POST'])
 @login_required
-@admin_required
+@admin_or_moderator_required
 def admin_delete_user(user_id):
     user = User.query.get_or_404(user_id)
     if user.id == current_user.id:
@@ -805,9 +838,26 @@ def admin_delete_user(user_id):
     flash('User deleted successfully!', 'success')
     return redirect(url_for('admin_users'))
 
-@app.route('/admin/posts')
+@app.route('/admin/users/<int:user_id>/toggle_moderator', methods=['POST'])
 @login_required
 @admin_required
+def admin_toggle_moderator(user_id):
+    """Toggle moderator status for a user"""
+    user = User.query.get_or_404(user_id)
+    if user.id == current_user.id:
+        flash('You cannot change your own moderator status!', 'danger')
+        return redirect(request.referrer or url_for('admin_users'))
+    
+    user.is_moderator = not user.is_moderator
+    db.session.commit()
+    
+    status = 'promoted to moderator' if user.is_moderator else 'removed from moderator role'
+    flash(f'User {user.username} has been {status}!', 'success')
+    return redirect(request.referrer or url_for('admin_users'))
+
+@app.route('/admin/posts')
+@login_required
+@admin_or_moderator_required
 def admin_posts():
     page = request.args.get('page', 1, type=int)
     posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=20, error_out=False)
@@ -815,7 +865,7 @@ def admin_posts():
 
 @app.route('/admin/posts/<int:post_id>/toggle', methods=['POST'])
 @login_required
-@admin_required
+@admin_or_moderator_required
 def admin_toggle_post(post_id):
     post = Post.query.get_or_404(post_id)
     post.is_active = not post.is_active
@@ -826,7 +876,7 @@ def admin_toggle_post(post_id):
 
 @app.route('/admin/posts/<int:post_id>/delete', methods=['POST'])
 @login_required
-@admin_required
+@admin_or_moderator_required
 def admin_delete_post(post_id):
     post = Post.query.get_or_404(post_id)
     db.session.delete(post)
@@ -836,14 +886,14 @@ def admin_delete_post(post_id):
 
 @app.route('/admin/categories')
 @login_required
-@admin_required
+@admin_or_moderator_required
 def admin_categories():
     categories = Category.query.all()
     return render_template('admin/categories.html', categories=categories)
 
 @app.route('/admin/categories/add', methods=['GET', 'POST'])
 @login_required
-@admin_required
+@admin_or_moderator_required
 def admin_add_category():
     form = CategoryForm()
     if form.validate_on_submit():
@@ -863,7 +913,7 @@ def admin_add_category():
 
 @app.route('/admin/categories/<int:category_id>/edit', methods=['GET', 'POST'])
 @login_required
-@admin_required
+@admin_or_moderator_required
 def admin_edit_category(category_id):
     category = Category.query.get_or_404(category_id)
     form = CategoryForm()
@@ -887,7 +937,7 @@ def admin_edit_category(category_id):
 
 @app.route('/admin/categories/<int:category_id>/toggle', methods=['POST'])
 @login_required
-@admin_required
+@admin_or_moderator_required
 def admin_toggle_category(category_id):
     category = Category.query.get_or_404(category_id)
     category.is_active = not category.is_active
@@ -898,7 +948,7 @@ def admin_toggle_category(category_id):
 
 @app.route('/admin/comments')
 @login_required
-@admin_required
+@admin_or_moderator_required
 def admin_comments():
     page = request.args.get('page', 1, type=int)
     comments = Comment.query.order_by(Comment.date_posted.desc()).paginate(page=page, per_page=20, error_out=False)
@@ -906,7 +956,7 @@ def admin_comments():
 
 @app.route('/admin/comments/<int:comment_id>/toggle', methods=['POST'])
 @login_required
-@admin_required
+@admin_or_moderator_required
 def admin_toggle_comment(comment_id):
     comment = Comment.query.get_or_404(comment_id)
     comment.is_active = not comment.is_active
@@ -917,7 +967,7 @@ def admin_toggle_comment(comment_id):
 
 @app.route('/admin/comments/<int:comment_id>/delete', methods=['POST'])
 @login_required
-@admin_required
+@admin_or_moderator_required
 def admin_delete_comment(comment_id):
     comment = Comment.query.get_or_404(comment_id)
     db.session.delete(comment)
@@ -927,7 +977,7 @@ def admin_delete_comment(comment_id):
 
 @app.route('/admin/adsense', methods=['GET', 'POST'])
 @login_required
-@admin_required
+@admin_or_moderator_required
 def admin_adsense():
     adsense = AdSense.query.first()
     if not adsense:
@@ -971,7 +1021,7 @@ def admin_adsense():
 # Advertisement Management Routes
 @app.route('/admin/advertisements')
 @login_required
-@admin_required
+@admin_or_moderator_required
 def admin_advertisements():
     page = request.args.get('page', 1, type=int)
     advertisements = Advertisement.query.order_by(Advertisement.created_at.desc()).paginate(
@@ -980,7 +1030,7 @@ def admin_advertisements():
 
 @app.route('/admin/advertisements/add', methods=['GET', 'POST'])
 @login_required
-@admin_required
+@admin_or_moderator_required
 def admin_add_advertisement():
     form = AdvertisementForm()
     if form.validate_on_submit():
@@ -1012,7 +1062,7 @@ def admin_add_advertisement():
 
 @app.route('/admin/advertisements/<int:ad_id>/edit', methods=['GET', 'POST'])
 @login_required
-@admin_required
+@admin_or_moderator_required
 def admin_edit_advertisement(ad_id):
     advertisement = Advertisement.query.get_or_404(ad_id)
     form = AdvertisementForm()
@@ -1057,7 +1107,7 @@ def admin_edit_advertisement(ad_id):
 
 @app.route('/admin/advertisements/<int:ad_id>/toggle', methods=['POST'])
 @login_required
-@admin_required
+@admin_or_moderator_required
 def admin_toggle_advertisement(ad_id):
     advertisement = Advertisement.query.get_or_404(ad_id)
     advertisement.is_active = not advertisement.is_active
@@ -1069,7 +1119,7 @@ def admin_toggle_advertisement(ad_id):
 
 @app.route('/admin/advertisements/<int:ad_id>/delete', methods=['POST'])
 @login_required
-@admin_required
+@admin_or_moderator_required
 def admin_delete_advertisement(ad_id):
     advertisement = Advertisement.query.get_or_404(ad_id)
     db.session.delete(advertisement)
@@ -1079,7 +1129,7 @@ def admin_delete_advertisement(ad_id):
 
 @app.route('/admin/advertisements/<int:ad_id>/stats')
 @login_required
-@admin_required
+@admin_or_moderator_required
 def admin_advertisement_stats(ad_id):
     advertisement = Advertisement.query.get_or_404(ad_id)
     

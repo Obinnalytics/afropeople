@@ -118,7 +118,7 @@
                     <div class="border-t border-gray-200 pt-6">
                         <h4 class="text-lg font-medium text-gray-900 mb-4">Permissions & Status</h4>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div class="bg-red-50 rounded-lg p-4">
                                 <div class="flex items-start">
                                     <div class="flex items-center h-5">
@@ -127,6 +127,18 @@
                                     <div class="ml-3">
                                         {{ form.is_admin.label(class="text-sm font-medium text-gray-900") }}
                                         <p class="text-sm text-gray-500">Grant administrative privileges to this user</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-blue-50 rounded-lg p-4">
+                                <div class="flex items-start">
+                                    <div class="flex items-center h-5">
+                                        {{ form.is_moderator(class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2") }}
+                                    </div>
+                                    <div class="ml-3">
+                                        {{ form.is_moderator.label(class="text-sm font-medium text-gray-900") }}
+                                        <p class="text-sm text-gray-500">Grant moderator privileges to manage posts and comments</p>
                                     </div>
                                 </div>
                             </div>
