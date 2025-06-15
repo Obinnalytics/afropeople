@@ -3,100 +3,114 @@
 {% block title %}Add Advertisement - Admin{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 text-primary">
-        <i class="fas fa-plus me-2"></i>Add New Advertisement
-    </h1>
-    <a href="{{ url_for('admin_advertisements') }}" class="btn btn-secondary">
-        <i class="fas fa-arrow-left me-1"></i>Back to Advertisements
-    </a>
+<!-- Header Section -->
+<div class="bg-gradient-to-r from-green-600 to-green-700 rounded-lg shadow-lg p-6 mb-8">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+        <div class="flex items-center mb-4 sm:mb-0">
+            <div class="bg-white bg-opacity-20 rounded-lg p-3 mr-4">
+                <i class="fas fa-plus text-white text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-bold text-white">Add New Advertisement</h1>
+                <p class="text-green-100 mt-1">Create a new advertisement for your site</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-4">
+            <a href="{{ url_for('admin_advertisements') }}" class="px-6 py-3 bg-white bg-opacity-20 text-white rounded-lg hover:bg-opacity-30 transition duration-200 font-medium">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Advertisements
+            </a>
+        </div>
+    </div>
 </div>
 
-<div class="row">
-    <div class="col-lg-8">
-        <div class="card admin-card">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">
-                    <i class="fas fa-bullhorn me-2"></i>Advertisement Details
-                </h5>
+<div class="grid lg:grid-cols-3 gap-8">
+    <!-- Main Form -->
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-lg shadow-lg">
+            <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-t-lg px-6 py-4">
+                <h2 class="text-xl font-semibold text-white flex items-center">
+                    <i class="fas fa-bullhorn mr-3"></i>
+                    Advertisement Details
+                </h2>
             </div>
-            <div class="card-body">
-                <form method="POST" enctype="multipart/form-data">
+            <div class="p-6">
+                <form method="POST" enctype="multipart/form-data" class="space-y-6">
                     {{ form.hidden_tag() }}
                     
                     <!-- Basic Information -->
-                    <div class="row mb-3">
-                        <div class="col-md-8">
-                            <label for="{{ form.title.id }}" class="form-label">
-                                <i class="fas fa-heading me-1"></i>{{ form.title.label.text }}
+                    <div class="grid md:grid-cols-4 gap-6">
+                        <div class="md:col-span-3">
+                            <label for="{{ form.title.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-heading text-gray-400 mr-2"></i>{{ form.title.label.text }}
                             </label>
-                            {{ form.title(class="form-control") }}
+                            {{ form.title(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200") }}
                             {% if form.title.errors %}
-                                <div class="text-danger small mt-1">
+                                <div class="text-red-500 text-sm mt-1">
                                     {% for error in form.title.errors %}{{ error }}{% endfor %}
                                 </div>
                             {% endif %}
                         </div>
-                        <div class="col-md-4">
-                            <label for="{{ form.priority.id }}" class="form-label">
-                                <i class="fas fa-sort-numeric-up me-1"></i>{{ form.priority.label.text }}
+                        <div>
+                            <label for="{{ form.priority.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-sort-numeric-up text-gray-400 mr-2"></i>{{ form.priority.label.text }}
                             </label>
-                            {{ form.priority(class="form-select") }}
+                            {{ form.priority(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200") }}
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="{{ form.description.id }}" class="form-label">
-                            <i class="fas fa-align-left me-1"></i>{{ form.description.label.text }}
+                    <div>
+                        <label for="{{ form.description.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-align-left text-gray-400 mr-2"></i>{{ form.description.label.text }}
                         </label>
-                        {{ form.description(class="form-control", rows="3") }}
+                        {{ form.description(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200", rows="3") }}
                     </div>
 
                     <!-- Image Upload Section -->
-                    <div class="mb-4">
-                        <h6 class="text-primary mb-3">
-                            <i class="fas fa-image me-2"></i>Advertisement Image
-                        </h6>
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-image text-green-500 mr-2"></i>
+                            Advertisement Image
+                        </h3>
                         
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label for="{{ form.image_file.id }}" class="form-label">
-                                    <i class="fas fa-upload me-1"></i>{{ form.image_file.label.text }}
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="{{ form.image_file.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-upload text-gray-400 mr-2"></i>{{ form.image_file.label.text }}
                                 </label>
-                                {{ form.image_file(class="form-control") }}
+                                {{ form.image_file(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200") }}
                                 {% if form.image_file.errors %}
-                                    <div class="text-danger small mt-1">
+                                    <div class="text-red-500 text-sm mt-1">
                                         {% for error in form.image_file.errors %}{{ error }}{% endfor %}
                                     </div>
                                 {% endif %}
-                                <small class="form-text text-muted">Upload JPG, PNG, JPEG, or GIF files</small>
+                                <p class="text-sm text-gray-500 mt-2">Upload JPG, PNG, JPEG, or GIF files</p>
                             </div>
-                            <div class="col-md-6">
-                                <label for="{{ form.image_url.id }}" class="form-label">
-                                    <i class="fas fa-link me-1"></i>{{ form.image_url.label.text }}
+                            <div>
+                                <label for="{{ form.image_url.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fas fa-link text-gray-400 mr-2"></i>{{ form.image_url.label.text }}
                                 </label>
-                                {{ form.image_url(class="form-control") }}
-                                <small class="form-text text-muted">Alternative: Use external image URL</small>
+                                {{ form.image_url(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200") }}
+                                <p class="text-sm text-gray-500 mt-2">Alternative: Use external image URL</p>
                             </div>
                         </div>
                         
-                        <div class="alert alert-info mt-3">
-                            <h6 class="alert-heading">
-                                <i class="fas fa-info-circle me-2"></i>Recommended Image Sizes
-                            </h6>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <ul class="mb-0 small">
-                                        <li><strong>Sidebar:</strong> 300x250px (Medium Rectangle)</li>
-                                        <li><strong>Header:</strong> 728x90px (Leaderboard)</li>
-                                        <li><strong>Footer:</strong> 728x90px (Leaderboard)</li>
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
+                            <h4 class="font-semibold text-blue-800 mb-3 flex items-center">
+                                <i class="fas fa-info-circle mr-2"></i>Recommended Image Sizes
+                            </h4>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <ul class="text-sm text-blue-700 space-y-1">
+                                        <li><span class="font-medium">Sidebar:</span> 300x250px (Medium Rectangle)</li>
+                                        <li><span class="font-medium">Header:</span> 728x90px (Leaderboard)</li>
+                                        <li><span class="font-medium">Footer:</span> 728x90px (Leaderboard)</li>
                                     </ul>
                                 </div>
-                                <div class="col-md-6">
-                                    <ul class="mb-0 small">
-                                        <li><strong>Content Area:</strong> 336x280px (Large Rectangle)</li>
-                                        <li><strong>Popup:</strong> 300x300px (Square)</li>
-                                        <li><strong>Mobile Banner:</strong> 320x50px (Mobile Banner)</li>
+                                <div>
+                                    <ul class="text-sm text-blue-700 space-y-1">
+                                        <li><span class="font-medium">Content Area:</span> 336x280px (Large Rectangle)</li>
+                                        <li><span class="font-medium">Popup:</span> 300x300px (Square)</li>
+                                        <li><span class="font-medium">Mobile Banner:</span> 320x50px (Mobile Banner)</li>
                                     </ul>
                                 </div>
                             </div>
@@ -104,72 +118,77 @@
                     </div>
 
                     <!-- Link URL -->
-                    <div class="mb-3">
-                        <label for="{{ form.link_url.id }}" class="form-label">
-                            <i class="fas fa-external-link-alt me-1"></i>{{ form.link_url.label.text }}
+                    <div>
+                        <label for="{{ form.link_url.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-external-link-alt text-gray-400 mr-2"></i>{{ form.link_url.label.text }}
                         </label>
-                        {{ form.link_url(class="form-control") }}
-                        <small class="form-text text-muted">Where users go when they click the ad</small>
+                        {{ form.link_url(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200") }}
+                        <p class="text-sm text-gray-500 mt-2">Where users go when they click the ad</p>
                     </div>
 
                     <!-- Ad Configuration -->
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label for="{{ form.ad_type.id }}" class="form-label">
-                                <i class="fas fa-tag me-1"></i>{{ form.ad_type.label.text }}
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div>
+                            <label for="{{ form.ad_type.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-tag text-gray-400 mr-2"></i>{{ form.ad_type.label.text }}
                             </label>
-                            {{ form.ad_type(class="form-select") }}
+                            {{ form.ad_type(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200") }}
                         </div>
-                        <div class="col-md-4">
-                            <label for="{{ form.placement.id }}" class="form-label">
-                                <i class="fas fa-map-marker-alt me-1"></i>{{ form.placement.label.text }}
+                        <div>
+                            <label for="{{ form.placement.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-map-marker-alt text-gray-400 mr-2"></i>{{ form.placement.label.text }}
                             </label>
-                            {{ form.placement(class="form-select") }}
+                            {{ form.placement(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200") }}
                         </div>
-                        <div class="col-md-4">
-                            <label for="{{ form.target_audience.id }}" class="form-label">
-                                <i class="fas fa-users me-1"></i>{{ form.target_audience.label.text }}
+                        <div>
+                            <label for="{{ form.target_audience.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-users text-gray-400 mr-2"></i>{{ form.target_audience.label.text }}
                             </label>
-                            {{ form.target_audience(class="form-select") }}
+                            {{ form.target_audience(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200") }}
                         </div>
                     </div>
 
                     <!-- Schedule -->
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="{{ form.start_date.id }}" class="form-label">
-                                <i class="fas fa-calendar-plus me-1"></i>{{ form.start_date.label.text }}
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.start_date.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-calendar-plus text-gray-400 mr-2"></i>{{ form.start_date.label.text }}
                             </label>
-                            {{ form.start_date(class="form-control") }}
-                            <small class="form-text text-muted">When the ad should start showing</small>
+                            {{ form.start_date(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200") }}
+                            <p class="text-sm text-gray-500 mt-2">When the ad should start showing</p>
                         </div>
-                        <div class="col-md-6">
-                            <label for="{{ form.end_date.id }}" class="form-label">
-                                <i class="fas fa-calendar-minus me-1"></i>{{ form.end_date.label.text }}
+                        <div>
+                            <label for="{{ form.end_date.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-calendar-minus text-gray-400 mr-2"></i>{{ form.end_date.label.text }}
                             </label>
-                            {{ form.end_date(class="form-control") }}
-                            <small class="form-text text-muted">When the ad should stop showing (optional)</small>
+                            {{ form.end_date(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200") }}
+                            <p class="text-sm text-gray-500 mt-2">When the ad should stop showing (optional)</p>
                         </div>
                     </div>
 
                     <!-- Status -->
-                    <div class="mb-4">
-                        <div class="form-check form-switch">
-                            {{ form.is_active(class="form-check-input") }}
-                            <label class="form-check-label" for="{{ form.is_active.id }}">
-                                <i class="fas fa-toggle-on me-1"></i>{{ form.is_active.label.text }}
-                            </label>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <label class="text-sm font-medium text-gray-700 flex items-center">
+                                    <i class="fas fa-toggle-on text-green-500 mr-2"></i>{{ form.is_active.label.text }}
+                                </label>
+                                <p class="text-sm text-gray-500 mt-1">
+                                    Enable this advertisement to start showing it to users
+                                </p>
+                            </div>
+                            <div class="ml-4">
+                                {{ form.is_active(class="w-12 h-6 bg-gray-200 rounded-full relative focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-200 ease-in-out") }}
+                            </div>
                         </div>
-                        <small class="form-text text-muted">
-                            Enable this advertisement to start showing it to users
-                        </small>
                     </div>
 
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <a href="{{ url_for('admin_advertisements') }}" class="btn btn-secondary me-md-2">
-                            <i class="fas fa-times me-1"></i>Cancel
+                    <!-- Submit Buttons -->
+                    <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4 pt-6 border-t border-gray-200">
+                        <a href="{{ url_for('admin_advertisements') }}" class="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition duration-200 text-center">
+                            <i class="fas fa-times mr-2"></i>Cancel
                         </a>
-                        {{ form.submit(class="btn btn-primary") }}
+                        {{ form.submit(class="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition duration-200 font-medium") }}
                     </div>
                 </form>
             </div>
@@ -177,48 +196,126 @@
     </div>
 
     <!-- Help Panel -->
-    <div class="col-lg-4">
-        <div class="card admin-card">
-            <div class="card-header bg-info text-white">
-                <h6 class="mb-0">
-                    <i class="fas fa-question-circle me-2"></i>Advertisement Guide
-                </h6>
+    <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow-lg">
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-t-lg px-6 py-4">
+                <h3 class="text-lg font-semibold text-white flex items-center">
+                    <i class="fas fa-question-circle mr-2"></i>
+                    Advertisement Guide
+                </h3>
             </div>
-            <div class="card-body">
-                <h6 class="text-primary">Image Guidelines:</h6>
-                <ul class="small">
-                    <li>Use high-quality images for better engagement</li>
-                    <li>Keep file sizes under 2MB for faster loading</li>
-                    <li>Use clear, readable text in images</li>
-                    <li>Ensure images are relevant to your target audience</li>
-                </ul>
+            <div class="p-6 space-y-6">
+                <!-- Image Guidelines -->
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-image text-green-500 mr-2"></i>Image Guidelines
+                    </h4>
+                    <ul class="text-sm text-gray-600 space-y-2">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mr-2 mt-0.5 text-xs"></i>
+                            Use high-quality images for better engagement
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mr-2 mt-0.5 text-xs"></i>
+                            Keep file sizes under 2MB for faster loading
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mr-2 mt-0.5 text-xs"></i>
+                            Use clear, readable text in images
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-green-500 mr-2 mt-0.5 text-xs"></i>
+                            Ensure images are relevant to your target audience
+                        </li>
+                    </ul>
+                </div>
 
-                <h6 class="text-primary mt-3">Ad Types:</h6>
-                <ul class="small">
-                    <li><strong>Banner:</strong> Large horizontal ads</li>
-                    <li><strong>Text:</strong> Simple text-based ads</li>
-                    <li><strong>Image:</strong> Image-only advertisements</li>
-                    <li><strong>Video:</strong> Video advertisements</li>
-                </ul>
+                <!-- Ad Types -->
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-tag text-blue-500 mr-2"></i>Ad Types
+                    </h4>
+                    <div class="space-y-3">
+                        <div class="bg-gray-50 rounded-lg p-3">
+                            <p class="font-medium text-gray-800">Banner</p>
+                            <p class="text-sm text-gray-600">Large horizontal ads</p>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-3">
+                            <p class="font-medium text-gray-800">Text</p>
+                            <p class="text-sm text-gray-600">Simple text-based ads</p>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-3">
+                            <p class="font-medium text-gray-800">Image</p>
+                            <p class="text-sm text-gray-600">Image-only advertisements</p>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-3">
+                            <p class="font-medium text-gray-800">Video</p>
+                            <p class="text-sm text-gray-600">Video advertisements</p>
+                        </div>
+                    </div>
+                </div>
 
-                <h6 class="text-primary mt-3">Placements & Sizes:</h6>
-                <ul class="small">
-                    <li><strong>Sidebar:</strong> 300x250px - Right side of pages</li>
-                    <li><strong>Header:</strong> 728x90px - Top of every page</li>
-                    <li><strong>Footer:</strong> 728x90px - Bottom of every page</li>
-                    <li><strong>Content:</strong> 336x280px - Within post content</li>
-                    <li><strong>Popup:</strong> 300x300px - Modal popup ads</li>
-                </ul>
+                <!-- Placements & Sizes -->
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-map-marker-alt text-purple-500 mr-2"></i>Placements & Sizes
+                    </h4>
+                    <div class="space-y-2 text-sm text-gray-600">
+                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                            <span class="font-medium">Sidebar</span>
+                            <span class="text-xs bg-gray-200 px-2 py-1 rounded">300x250px</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                            <span class="font-medium">Header</span>
+                            <span class="text-xs bg-gray-200 px-2 py-1 rounded">728x90px</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                            <span class="font-medium">Footer</span>
+                            <span class="text-xs bg-gray-200 px-2 py-1 rounded">728x90px</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                            <span class="font-medium">Content</span>
+                            <span class="text-xs bg-gray-200 px-2 py-1 rounded">336x280px</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                            <span class="font-medium">Popup</span>
+                            <span class="text-xs bg-gray-200 px-2 py-1 rounded">300x300px</span>
+                        </div>
+                    </div>
+                </div>
 
-                <h6 class="text-primary mt-3">Target Audience:</h6>
-                <ul class="small">
-                    <li><strong>All Users:</strong> Everyone sees the ad</li>
-                    <li><strong>Members:</strong> Only logged-in users</li>
-                    <li><strong>Guests:</strong> Only non-logged-in users</li>
-                </ul>
+                <!-- Target Audience -->
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-users text-orange-500 mr-2"></i>Target Audience
+                    </h4>
+                    <div class="space-y-2 text-sm text-gray-600">
+                        <div class="p-3 bg-gray-50 rounded-lg">
+                            <p class="font-medium text-gray-800">All Users</p>
+                            <p class="text-xs">Everyone sees the ad</p>
+                        </div>
+                        <div class="p-3 bg-gray-50 rounded-lg">
+                            <p class="font-medium text-gray-800">Members</p>
+                            <p class="text-xs">Only logged-in users</p>
+                        </div>
+                        <div class="p-3 bg-gray-50 rounded-lg">
+                            <p class="font-medium text-gray-800">Guests</p>
+                            <p class="text-xs">Only non-logged-in users</p>
+                        </div>
+                    </div>
+                </div>
 
-                <h6 class="text-primary mt-3">Priority:</h6>
-                <p class="small">Higher priority ads (10) show before lower priority ads (1) in the same placement.</p>
+                <!-- Priority -->
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-sort-numeric-up text-red-500 mr-2"></i>Priority
+                    </h4>
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                        <p class="text-sm text-yellow-800">
+                            Higher priority ads (10) show before lower priority ads (1) in the same placement.
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

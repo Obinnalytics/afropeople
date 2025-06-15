@@ -3,148 +3,186 @@
 {% block title %}Advertisement Management - Admin{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 text-primary">
-        <i class="fas fa-bullhorn me-2"></i>Advertisement Management
-    </h1>
-    <a href="{{ url_for('admin_add_advertisement') }}" class="btn btn-primary">
-        <i class="fas fa-plus me-1"></i>Add New Advertisement
-    </a>
+<!-- Header Section -->
+<div class="bg-gradient-to-r from-green-600 to-green-700 rounded-lg shadow-lg p-6 mb-8">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+        <div class="flex items-center mb-4 sm:mb-0">
+            <div class="bg-white bg-opacity-20 rounded-lg p-3 mr-4">
+                <i class="fas fa-bullhorn text-white text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-bold text-white">Advertisement Management</h1>
+                <p class="text-green-100 mt-1">Manage and monitor your advertisements</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-4">
+            <span class="px-4 py-2 bg-white bg-opacity-20 rounded-full text-sm font-medium text-white">
+                <i class="fas fa-chart-line mr-2"></i>{{ advertisements.total }} Total Ads
+            </span>
+            <a href="{{ url_for('admin_add_advertisement') }}" class="px-6 py-3 bg-white text-green-600 rounded-lg hover:bg-gray-100 transition duration-200 font-medium">
+                <i class="fas fa-plus mr-2"></i>Add New Advertisement
+            </a>
+        </div>
+    </div>
 </div>
 
 <!-- Advertisement Statistics -->
-<div class="row mb-4">
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card admin-card stat-card">
-            <div class="card-body text-center">
-                <div class="text-primary mb-2">
-                    <i class="fas fa-bullhorn fa-2x"></i>
-                </div>
-                <h4 class="card-title text-primary">{{ advertisements.total }}</h4>
-                <p class="card-text text-muted">Total Ads</p>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Total Ads -->
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <div class="flex items-center">
+            <div class="bg-blue-100 rounded-lg p-3 mr-4">
+                <i class="fas fa-bullhorn text-blue-600 text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-600">Total Ads</p>
+                <p class="text-3xl font-bold text-gray-900">{{ advertisements.total }}</p>
             </div>
         </div>
     </div>
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card admin-card stat-card">
-            <div class="card-body text-center">
-                <div class="text-success mb-2">
-                    <i class="fas fa-play fa-2x"></i>
-                </div>
-                <h4 class="card-title text-success">
-                    {{ advertisements.items | selectattr('is_active') | list | length }}
-                </h4>
-                <p class="card-text text-muted">Active Ads</p>
+
+    <!-- Active Ads -->
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <div class="flex items-center">
+            <div class="bg-green-100 rounded-lg p-3 mr-4">
+                <i class="fas fa-play text-green-600 text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-600">Active Ads</p>
+                <p class="text-3xl font-bold text-gray-900">{{ advertisements.items | selectattr('is_active') | list | length }}</p>
             </div>
         </div>
     </div>
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card admin-card stat-card">
-            <div class="card-body text-center">
-                <div class="text-warning mb-2">
-                    <i class="fas fa-mouse-pointer fa-2x"></i>
-                </div>
-                <h4 class="card-title text-warning">
-                    {{ advertisements.items | sum(attribute='click_count') }}
-                </h4>
-                <p class="card-text text-muted">Total Clicks</p>
+
+    <!-- Total Clicks -->
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <div class="flex items-center">
+            <div class="bg-yellow-100 rounded-lg p-3 mr-4">
+                <i class="fas fa-mouse-pointer text-yellow-600 text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-600">Total Clicks</p>
+                <p class="text-3xl font-bold text-gray-900">{{ advertisements.items | sum(attribute='click_count') }}</p>
             </div>
         </div>
     </div>
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card admin-card stat-card">
-            <div class="card-body text-center">
-                <div class="text-info mb-2">
-                    <i class="fas fa-eye fa-2x"></i>
-                </div>
-                <h4 class="card-title text-info">
-                    {{ advertisements.items | sum(attribute='impression_count') }}
-                </h4>
-                <p class="card-text text-muted">Impressions</p>
+
+    <!-- Impressions -->
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <div class="flex items-center">
+            <div class="bg-purple-100 rounded-lg p-3 mr-4">
+                <i class="fas fa-eye text-purple-600 text-2xl"></i>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-600">Impressions</p>
+                <p class="text-3xl font-bold text-gray-900">{{ advertisements.items | sum(attribute='impression_count') }}</p>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Advertisements List -->
-<div class="card admin-card">
-    <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">
-            <i class="fas fa-list me-2"></i>All Advertisements
-        </h5>
+<div class="bg-white rounded-lg shadow-lg">
+    <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-t-lg px-6 py-4">
+        <h2 class="text-xl font-semibold text-white flex items-center">
+            <i class="fas fa-list mr-3"></i>
+            All Advertisements
+        </h2>
     </div>
-    <div class="card-body">
+    <div class="p-6">
         {% if advertisements.items %}
-            <div class="table-responsive">
-                <table class="table table-hover">
+            <!-- Desktop Table View -->
+            <div class="hidden lg:block overflow-x-auto">
+                <table class="w-full">
                     <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Type</th>
-                            <th>Placement</th>
-                            <th>Target</th>
-                            <th>Priority</th>
-                            <th>Status</th>
-                            <th>Clicks</th>
-                            <th>CTR</th>
-                            <th>Actions</th>
+                        <tr class="border-b border-gray-200">
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Title</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Type</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Placement</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Target</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Priority</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Clicks</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">CTR</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for ad in advertisements.items %}
-                        <tr>
-                            <td>
-                                <strong>{{ ad.title }}</strong>
-                                {% if ad.description %}
-                                    <br><small class="text-muted">{{ ad.description[:50] }}...</small>
-                                {% endif %}
+                        <tr class="border-b border-gray-100 hover:bg-gray-50 transition duration-200">
+                            <td class="py-4 px-4">
+                                <div>
+                                    <p class="font-semibold text-gray-900">{{ ad.title }}</p>
+                                    {% if ad.description %}
+                                        <p class="text-sm text-gray-500 mt-1">{{ ad.description[:50] }}...</p>
+                                    {% endif %}
+                                </div>
                             </td>
-                            <td>
-                                <span class="badge bg-secondary">{{ ad.ad_type.title() }}</span>
+                            <td class="py-4 px-4">
+                                <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">
+                                    {{ ad.ad_type.title() }}
+                                </span>
                             </td>
-                            <td>
-                                <span class="badge bg-info">{{ ad.placement.title() }}</span>
+                            <td class="py-4 px-4">
+                                <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                                    {{ ad.placement.title() }}
+                                </span>
                             </td>
-                            <td>
-                                <span class="badge bg-dark">{{ ad.target_audience.title() }}</span>
+                            <td class="py-4 px-4">
+                                <span class="px-3 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs font-medium">
+                                    {{ ad.target_audience.title() }}
+                                </span>
                             </td>
-                            <td>
-                                <span class="badge bg-warning">{{ ad.priority }}</span>
+                            <td class="py-4 px-4">
+                                <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
+                                    {{ ad.priority }}
+                                </span>
                             </td>
-                            <td>
+                            <td class="py-4 px-4">
                                 {% if ad.is_active %}
                                     {% if ad.is_expired() %}
-                                        <span class="badge bg-warning">Expired</span>
+                                        <span class="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-medium">
+                                            <i class="fas fa-clock mr-1"></i>Expired
+                                        </span>
                                     {% else %}
-                                        <span class="badge bg-success">Active</span>
+                                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                                            <i class="fas fa-check-circle mr-1"></i>Active
+                                        </span>
                                     {% endif %}
                                 {% else %}
-                                    <span class="badge bg-secondary">Inactive</span>
+                                    <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">
+                                        <i class="fas fa-pause-circle mr-1"></i>Inactive
+                                    </span>
                                 {% endif %}
                             </td>
-                            <td>{{ ad.click_count }}</td>
-                            <td>{{ ad.get_ctr() }}%</td>
-                            <td>
-                                <div class="btn-group btn-group-sm" role="group">
+                            <td class="py-4 px-4 font-medium text-gray-900">{{ ad.click_count }}</td>
+                            <td class="py-4 px-4 font-medium text-gray-900">{{ ad.get_ctr() }}%</td>
+                            <td class="py-4 px-4">
+                                <div class="flex space-x-2">
                                     <a href="{{ url_for('admin_edit_advertisement', ad_id=ad.id) }}" 
-                                       class="btn btn-outline-primary" title="Edit">
+                                       class="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition duration-200" 
+                                       title="Edit">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <a href="{{ url_for('admin_advertisement_stats', ad_id=ad.id) }}" 
-                                       class="btn btn-outline-info" title="Statistics">
+                                       class="p-2 text-purple-600 hover:bg-purple-100 rounded-lg transition duration-200" 
+                                       title="Statistics">
                                         <i class="fas fa-chart-bar"></i>
                                     </a>
                                     <form method="POST" action="{{ url_for('admin_toggle_advertisement', ad_id=ad.id) }}" 
-                                          style="display: inline;">
-                                        <button type="submit" class="btn btn-outline-warning" 
+                                          class="inline">
+                                        <button type="submit" 
+                                                class="p-2 text-yellow-600 hover:bg-yellow-100 rounded-lg transition duration-200" 
                                                 title="{{ 'Deactivate' if ad.is_active else 'Activate' }}">
                                             <i class="fas fa-{{ 'pause' if ad.is_active else 'play' }}"></i>
                                         </button>
                                     </form>
                                     <form method="POST" action="{{ url_for('admin_delete_advertisement', ad_id=ad.id) }}" 
-                                          style="display: inline;" 
+                                          class="inline" 
                                           onsubmit="return confirm('Are you sure you want to delete this advertisement?');">
-                                        <button type="submit" class="btn btn-outline-danger" title="Delete">
+                                        <button type="submit" 
+                                                class="p-2 text-red-600 hover:bg-red-100 rounded-lg transition duration-200" 
+                                                title="Delete">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
@@ -156,49 +194,117 @@
                 </table>
             </div>
 
+            <!-- Mobile Card View -->
+            <div class="lg:hidden space-y-4">
+                {% for ad in advertisements.items %}
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-900">{{ ad.title }}</h3>
+                            {% if ad.description %}
+                                <p class="text-sm text-gray-500 mt-1">{{ ad.description[:50] }}...</p>
+                            {% endif %}
+                        </div>
+                        <div class="ml-4">
+                            {% if ad.is_active %}
+                                {% if ad.is_expired() %}
+                                    <span class="px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-xs font-medium">
+                                        Expired
+                                    </span>
+                                {% else %}
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                                        Active
+                                    </span>
+                                {% endif %}
+                            {% else %}
+                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">
+                                    Inactive
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <p class="text-xs text-gray-500">Type</p>
+                            <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs">{{ ad.ad_type.title() }}</span>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Placement</p>
+                            <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">{{ ad.placement.title() }}</span>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Clicks</p>
+                            <p class="font-medium">{{ ad.click_count }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">CTR</p>
+                            <p class="font-medium">{{ ad.get_ctr() }}%</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-2">
+                        <a href="{{ url_for('admin_edit_advertisement', ad_id=ad.id) }}" 
+                           class="px-3 py-1 text-blue-600 hover:bg-blue-100 rounded text-sm transition duration-200">
+                            <i class="fas fa-edit mr-1"></i>Edit
+                        </a>
+                        <a href="{{ url_for('admin_advertisement_stats', ad_id=ad.id) }}" 
+                           class="px-3 py-1 text-purple-600 hover:bg-purple-100 rounded text-sm transition duration-200">
+                            <i class="fas fa-chart-bar mr-1"></i>Stats
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
             <!-- Pagination -->
             {% if advertisements.pages > 1 %}
-            <nav aria-label="Advertisement pagination">
-                <ul class="pagination justify-content-center">
+            <div class="flex justify-center mt-8">
+                <nav class="flex space-x-2">
                     {% if advertisements.has_prev %}
-                        <li class="page-item">
-                            <a class="page-link" href="{{ url_for('admin_advertisements', page=advertisements.prev_num) }}">Previous</a>
-                        </li>
+                        <a href="{{ url_for('admin_advertisements', page=advertisements.prev_num) }}" 
+                           class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition duration-200">
+                            <i class="fas fa-chevron-left mr-1"></i>Previous
+                        </a>
                     {% endif %}
                     
                     {% for page_num in advertisements.iter_pages() %}
                         {% if page_num %}
                             {% if page_num != advertisements.page %}
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ url_for('admin_advertisements', page=page_num) }}">{{ page_num }}</a>
-                                </li>
+                                <a href="{{ url_for('admin_advertisements', page=page_num) }}" 
+                                   class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition duration-200">
+                                    {{ page_num }}
+                                </a>
                             {% else %}
-                                <li class="page-item active">
-                                    <span class="page-link">{{ page_num }}</span>
-                                </li>
+                                <span class="px-4 py-2 bg-green-500 text-white rounded-lg font-medium">
+                                    {{ page_num }}
+                                </span>
                             {% endif %}
                         {% else %}
-                            <li class="page-item disabled">
-                                <span class="page-link">...</span>
-                            </li>
+                            <span class="px-4 py-2 text-gray-400">...</span>
                         {% endif %}
                     {% endfor %}
                     
                     {% if advertisements.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="{{ url_for('admin_advertisements', page=advertisements.next_num) }}">Next</a>
-                        </li>
+                        <a href="{{ url_for('admin_advertisements', page=advertisements.next_num) }}" 
+                           class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition duration-200">
+                            Next<i class="fas fa-chevron-right ml-1"></i>
+                        </a>
                     {% endif %}
-                </ul>
-            </nav>
+                </nav>
+            </div>
             {% endif %}
         {% else %}
-            <div class="text-center py-5">
-                <i class="fas fa-bullhorn fa-3x text-muted mb-3"></i>
-                <h5 class="text-muted">No advertisements found</h5>
-                <p class="text-muted">Create your first advertisement to get started.</p>
-                <a href="{{ url_for('admin_add_advertisement') }}" class="btn btn-primary">
-                    <i class="fas fa-plus me-1"></i>Add Advertisement
+            <!-- Empty State -->
+            <div class="text-center py-12">
+                <div class="bg-gray-100 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-bullhorn text-gray-400 text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">No advertisements found</h3>
+                <p class="text-gray-500 mb-6">Create your first advertisement to get started with promoting your content.</p>
+                <a href="{{ url_for('admin_add_advertisement') }}" 
+                   class="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition duration-200 font-medium">
+                    <i class="fas fa-plus mr-2"></i>Add Advertisement
                 </a>
             </div>
         {% endif %}

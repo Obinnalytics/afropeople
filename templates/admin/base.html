@@ -1,139 +1,382 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Admin Dashboard - AfroPeople{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d'
+                        },
+                        orange: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            200: '#fed7aa',
+                            300: '#fdba74',
+                            400: '#fb923c',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                            800: '#9a3412',
+                            900: '#7c2d12'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Custom Styles -->
     <style>
-        .admin-sidebar {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #198754, #146c43);
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
         }
-        .admin-nav-link {
-            color: rgba(255, 255, 255, 0.8);
-            padding: 0.75rem 1rem;
-            border-radius: 0.375rem;
-            margin-bottom: 0.25rem;
-            transition: all 0.3s ease;
+        
+        .sidebar-gradient {
+            background: linear-gradient(135deg, #15803d 0%, #166534 50%, #14532d 100%);
         }
-        .admin-nav-link:hover, .admin-nav-link.active {
-            color: white;
-            background-color: rgba(255, 255, 255, 0.1);
-            text-decoration: none;
-        }
+        
         .admin-card {
-            border: none;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
             transition: all 0.3s ease;
         }
+        
         .admin-card:hover {
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
             transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
+        
         .stat-card {
-            background: linear-gradient(135deg, #fff, #f8f9fa);
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        }
+        
+        .nav-link-active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Ensure dashboard content stays visible */
+        main .admin-card {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        /* Only flash messages should be auto-hidden */
+        .flash-message {
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
     </style>
 </head>
-<body>
-    <!-- Top Navigation -->
-    <nav class="navbar navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('admin_dashboard') }}">
-                <i class="fas fa-shield-alt me-2"></i>AfroPeople Admin
-            </a>
-            <div class="navbar-nav ms-auto">
-                <div class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                        <i class="fas fa-user me-1"></i>{{ current_user.username }}
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="{{ url_for('index') }}"><i class="fas fa-home me-1"></i>View Site</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-1"></i>Logout</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="container-fluid mt-3">
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-    {% endwith %}
-
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3 col-lg-2 p-0">
-                <div class="admin-sidebar p-3">
-                    <div class="list-group list-group-flush">
-                        <a href="{{ url_for('admin_dashboard') }}" class="admin-nav-link d-flex align-items-center">
-                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                        </a>
-                        <a href="{{ url_for('admin_users') }}" class="admin-nav-link d-flex align-items-center">
-                            <i class="fas fa-users me-2"></i>Users
-                        </a>
-                        <a href="{{ url_for('admin_posts') }}" class="admin-nav-link d-flex align-items-center">
-                            <i class="fas fa-file-alt me-2"></i>Posts
-                        </a>
-                        <a href="{{ url_for('admin_comments') }}" class="admin-nav-link d-flex align-items-center">
-                            <i class="fas fa-comments me-2"></i>Comments
-                        </a>
-                        <a href="{{ url_for('admin_categories') }}" class="admin-nav-link d-flex align-items-center">
-                            <i class="fas fa-tags me-2"></i>Categories
-                        </a>
-                        <a href="{{ url_for('admin_adsense') }}" class="admin-nav-link d-flex align-items-center">
-                            <i class="fas fa-ad me-2"></i>AdSense
-                            {% if adsense and adsense.is_enabled %}
-                                <span class="badge bg-success ms-auto">ON</span>
-                            {% else %}
-                                <span class="badge bg-secondary ms-auto">OFF</span>
-                            {% endif %}
-                        </a>
-                        <a href="{{ url_for('admin_advertisements') }}" class="admin-nav-link d-flex align-items-center">
-                            <i class="fas fa-bullhorn me-2"></i>Advertisements
-                        </a>
-                        <hr class="text-white-50">
-                        <a href="{{ url_for('index') }}" class="admin-nav-link d-flex align-items-center">
-                            <i class="fas fa-external-link-alt me-2"></i>View Site
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Main Content -->
-            <div class="col-md-9 col-lg-10 p-4">
-                {% block content %}{% endblock %}
-            </div>
-        </div>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Mobile Menu Button -->
+    <div class="lg:hidden fixed top-4 left-4 z-50">
+        <button id="mobile-menu-btn" class="bg-primary-600 text-white p-2 rounded-lg shadow-lg hover:bg-primary-700 transition-colors">
+            <i class="fas fa-bars text-lg"></i>
+        </button>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 sidebar-gradient transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+        <!-- Logo -->
+        <div class="flex items-center justify-center h-16 px-4 border-b border-white/10">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-r from-orange-400 to-red-500 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-shield-alt text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-white font-bold text-lg">AfroPeople</h1>
+                    <p class="text-green-200 text-xs">Admin Panel</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Info -->
+        <div class="p-4 border-b border-white/10">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-r from-orange-400 to-red-500 rounded-full flex items-center justify-center">
+                    <i class="fas fa-user text-white"></i>
+                </div>
+                <div>
+                    <p class="text-white font-medium">{{ current_user.username }}</p>
+                    <p class="text-green-200 text-sm">Administrator</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="mt-6 px-4">
+            <div class="space-y-2">
+                <a href="{{ url_for('admin_dashboard') }}" 
+                   class="nav-link flex items-center px-4 py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 group"
+                   data-page="dashboard">
+                    <i class="fas fa-tachometer-alt w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-medium">Dashboard</span>
+                </a>
+                
+                <a href="{{ url_for('admin_users') }}" 
+                   class="nav-link flex items-center px-4 py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 group"
+                   data-page="users">
+                    <i class="fas fa-users w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-medium">Users</span>
+                    <span class="ml-auto bg-orange-500 text-white text-xs px-2 py-1 rounded-full">{{ total_users or 0 }}</span>
+                </a>
+                
+                <a href="{{ url_for('admin_posts') }}" 
+                   class="nav-link flex items-center px-4 py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 group"
+                   data-page="posts">
+                    <i class="fas fa-file-alt w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-medium">Posts</span>
+                    <span class="ml-auto bg-blue-500 text-white text-xs px-2 py-1 rounded-full">{{ total_posts or 0 }}</span>
+                </a>
+                
+                <a href="{{ url_for('admin_comments') }}" 
+                   class="nav-link flex items-center px-4 py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 group"
+                   data-page="comments">
+                    <i class="fas fa-comments w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-medium">Comments</span>
+                    <span class="ml-auto bg-purple-500 text-white text-xs px-2 py-1 rounded-full">{{ total_comments or 0 }}</span>
+                </a>
+                
+                <a href="{{ url_for('admin_categories') }}" 
+                   class="nav-link flex items-center px-4 py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 group"
+                   data-page="categories">
+                    <i class="fas fa-tags w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-medium">Categories</span>
+                    <span class="ml-auto bg-green-500 text-white text-xs px-2 py-1 rounded-full">{{ total_categories or 0 }}</span>
+                </a>
+                
+                <!-- Divider -->
+                <div class="border-t border-white/10 my-4"></div>
+                
+                <a href="{{ url_for('admin_adsense') }}" 
+                   class="nav-link flex items-center px-4 py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 group"
+                   data-page="adsense">
+                    <i class="fas fa-ad w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-medium">AdSense</span>
+                    {% if adsense and adsense.is_enabled %}
+                        <span class="ml-auto bg-green-500 text-white text-xs px-2 py-1 rounded-full pulse-animation">ON</span>
+                    {% else %}
+                        <span class="ml-auto bg-gray-500 text-white text-xs px-2 py-1 rounded-full">OFF</span>
+                    {% endif %}
+                </a>
+                
+                <a href="{{ url_for('admin_advertisements') }}" 
+                   class="nav-link flex items-center px-4 py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 group"
+                   data-page="advertisements">
+                    <i class="fas fa-bullhorn w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-medium">Advertisements</span>
+                </a>
+                
+                <!-- Divider -->
+                <div class="border-t border-white/10 my-4"></div>
+                
+                <a href="{{ url_for('index') }}" 
+                   class="nav-link flex items-center px-4 py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 group"
+                   target="_blank">
+                    <i class="fas fa-external-link-alt w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-medium">View Site</span>
+                    <i class="fas fa-arrow-up-right-from-square ml-auto text-xs"></i>
+                </a>
+                
+                <a href="{{ url_for('logout') }}" 
+                   class="nav-link flex items-center px-4 py-3 text-red-300 hover:text-red-200 hover:bg-red-500/20 rounded-lg transition-all duration-200 group">
+                    <i class="fas fa-sign-out-alt w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i>
+                    <span class="font-medium">Logout</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Sidebar Overlay for Mobile -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden hidden"></div>
+
+    <!-- Main Content -->
+    <div class="lg:ml-64">
+        <!-- Top Bar -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">{% block page_title %}Dashboard{% endblock %}</h1>
+                        <p class="text-gray-600 mt-1">{% block page_description %}Welcome back, {{ current_user.username }}!{% endblock %}</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <!-- Notifications -->
+                        <button class="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
+                            <i class="fas fa-bell text-lg"></i>
+                            <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+                        </button>
+                        
+                        <!-- Quick Actions -->
+                        <div class="relative">
+                            <button id="quick-actions-btn" class="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200 shadow-lg hover:shadow-xl">
+                                <i class="fas fa-plus"></i>
+                                <span class="hidden sm:inline">Quick Actions</span>
+                            </button>
+                            
+                            <!-- Quick Actions Dropdown -->
+                            <div id="quick-actions-menu" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50 hidden">
+                                <div class="py-2">
+                                    <a href="{{ url_for('admin_add_category') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-plus-circle w-4 h-4 mr-3 text-blue-500"></i>
+                                        Add Category
+                                    </a>
+                                    <a href="{{ url_for('create_post') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-edit w-4 h-4 mr-3 text-green-500"></i>
+                                        Create Post
+                                    </a>
+                                    <a href="{{ url_for('admin_add_advertisement') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                        <i class="fas fa-bullhorn w-4 h-4 mr-3 text-purple-500"></i>
+                                        Add Advertisement
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="px-6 py-4">
+                    {% for category, message in messages %}
+                        <div class="mb-4 p-4 rounded-lg border-l-4 {% if category == 'error' %}bg-red-50 border-red-400 text-red-700{% elif category == 'success' %}bg-green-50 border-green-400 text-green-700{% elif category == 'warning' %}bg-yellow-50 border-yellow-400 text-yellow-700{% else %}bg-blue-50 border-blue-400 text-blue-700{% endif %} fade-in-up flash-message">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    {% if category == 'error' %}
+                                        <i class="fas fa-exclamation-circle"></i>
+                                    {% elif category == 'success' %}
+                                        <i class="fas fa-check-circle"></i>
+                                    {% elif category == 'warning' %}
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    {% else %}
+                                        <i class="fas fa-info-circle"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="ml-3">
+                                    <p class="font-medium">{{ message }}</p>
+                                </div>
+                                <div class="ml-auto">
+                                    <button onclick="this.parentElement.parentElement.parentElement.remove()" class="text-gray-400 hover:text-gray-600">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Page Content -->
+        <main class="px-6 py-6">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- JavaScript -->
     <script>
-        // Add active class to current nav item
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+        mobileMenuBtn?.addEventListener('click', () => {
+            sidebar.classList.toggle('-translate-x-full');
+            sidebarOverlay.classList.toggle('hidden');
+        });
+
+        sidebarOverlay?.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            sidebarOverlay.classList.add('hidden');
+        });
+
+        // Quick actions dropdown
+        const quickActionsBtn = document.getElementById('quick-actions-btn');
+        const quickActionsMenu = document.getElementById('quick-actions-menu');
+
+        quickActionsBtn?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            quickActionsMenu.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', () => {
+            quickActionsMenu?.classList.add('hidden');
+        });
+
+        // Active navigation highlighting
         document.addEventListener('DOMContentLoaded', function() {
             const currentPath = window.location.pathname;
-            const navLinks = document.querySelectorAll('.admin-nav-link');
+            const navLinks = document.querySelectorAll('.nav-link');
             
             navLinks.forEach(link => {
                 if (link.getAttribute('href') === currentPath) {
-                    link.classList.add('active');
+                    link.classList.add('nav-link-active', 'text-white', 'bg-white/10');
+                    link.classList.remove('text-white/80');
                 }
             });
         });
+
+        // Auto-hide flash messages only (not dashboard content)
+        setTimeout(() => {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(message => {
+                message.style.opacity = '0';
+                message.style.transform = 'translateY(-20px)';
+                setTimeout(() => message.remove(), 300);
+            });
+        }, 5000);
     </script>
 </body>
 </html> 

@@ -3,44 +3,101 @@
 {% block title %}AdSense Management - Admin{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 text-success">
-        <i class="fas fa-ad me-2"></i>Google AdSense Management
-    </h1>
-    <span class="badge bg-{% if adsense and adsense.is_enabled %}success{% else %}secondary{% endif %} fs-6">
-        {% if adsense and adsense.is_enabled %}Enabled{% else %}Disabled{% endif %}
-    </span>
+<!-- Header Section -->
+<div class="bg-gradient-to-r from-green-600 to-green-700 rounded-lg shadow-lg p-6 mb-8">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+        <div class="flex items-center mb-4 sm:mb-0">
+            <div class="bg-white bg-opacity-20 rounded-lg p-3 mr-4">
+                <i class="fas fa-ad text-white text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-bold text-white">AdSense Management</h1>
+                <p class="text-green-100 mt-1">Configure Google AdSense integration</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-4">
+            <span class="px-4 py-2 rounded-full text-sm font-medium {% if adsense and adsense.is_enabled %}bg-green-500 text-white{% else %}bg-gray-500 text-white{% endif %}">
+                {% if adsense and adsense.is_enabled %}
+                    <i class="fas fa-check-circle mr-2"></i>Enabled
+                {% else %}
+                    <i class="fas fa-times-circle mr-2"></i>Disabled
+                {% endif %}
+            </span>
+        </div>
+    </div>
 </div>
 
 <!-- AdSense Information Card -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card admin-card">
-            <div class="card-header bg-info text-white">
-                <h5 class="mb-0">
-                    <i class="fas fa-info-circle me-2"></i>AdSense Integration Guide
-                </h5>
+<div class="bg-white rounded-lg shadow-lg mb-8">
+    <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-t-lg px-6 py-4">
+        <h2 class="text-xl font-semibold text-white flex items-center">
+            <i class="fas fa-info-circle mr-3"></i>
+            AdSense Integration Guide
+        </h2>
+    </div>
+    <div class="p-6">
+        <div class="grid md:grid-cols-2 gap-8">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-list-ol text-blue-500 mr-2"></i>
+                    How to Get AdSense Codes:
+                </h3>
+                <ol class="space-y-2 text-sm text-gray-600">
+                    <li class="flex items-start">
+                        <span class="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold mr-3 mt-0.5">1</span>
+                        Sign up for <a href="https://www.google.com/adsense/" target="_blank" class="text-blue-600 hover:text-blue-800 underline">Google AdSense</a>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold mr-3 mt-0.5">2</span>
+                        Get your site approved by Google
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold mr-3 mt-0.5">3</span>
+                        Create ad units in your AdSense dashboard
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold mr-3 mt-0.5">4</span>
+                        Copy the ad codes and paste them below
+                    </li>
+                    <li class="flex items-start">
+                        <span class="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center text-xs font-semibold mr-3 mt-0.5">5</span>
+                        Enable AdSense to start showing ads
+                    </li>
+                </ol>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6 class="text-primary">How to Get AdSense Codes:</h6>
-                        <ol class="small">
-                            <li>Sign up for <a href="https://www.google.com/adsense/" target="_blank">Google AdSense</a></li>
-                            <li>Get your site approved by Google</li>
-                            <li>Create ad units in your AdSense dashboard</li>
-                            <li>Copy the ad codes and paste them below</li>
-                            <li>Enable AdSense to start showing ads</li>
-                        </ol>
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-map-marker-alt text-green-500 mr-2"></i>
+                    Ad Placement Locations:
+                </h3>
+                <div class="space-y-3">
+                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                        <i class="fas fa-arrow-up text-purple-500 mr-3"></i>
+                        <div>
+                            <span class="font-medium text-gray-800">Header:</span>
+                            <span class="text-sm text-gray-600 ml-2">Top of every page</span>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <h6 class="text-success">Ad Placement Locations:</h6>
-                        <ul class="small">
-                            <li><strong>Header:</strong> Top of every page</li>
-                            <li><strong>Sidebar:</strong> Right side of content pages</li>
-                            <li><strong>Footer:</strong> Bottom of every page</li>
-                            <li><strong>Post Content:</strong> Within post content area</li>
-                        </ul>
+                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                        <i class="fas fa-arrows-alt-h text-orange-500 mr-3"></i>
+                        <div>
+                            <span class="font-medium text-gray-800">Sidebar:</span>
+                            <span class="text-sm text-gray-600 ml-2">Right side of content pages</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                        <i class="fas fa-arrow-down text-red-500 mr-3"></i>
+                        <div>
+                            <span class="font-medium text-gray-800">Footer:</span>
+                            <span class="text-sm text-gray-600 ml-2">Bottom of every page</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                        <i class="fas fa-file-alt text-blue-500 mr-3"></i>
+                        <div>
+                            <span class="font-medium text-gray-800">Post Content:</span>
+                            <span class="text-sm text-gray-600 ml-2">Within post content area</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -49,221 +106,243 @@
 </div>
 
 <!-- AdSense Configuration Form -->
-<div class="row">
-    <div class="col-12">
-        <div class="card admin-card">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">
-                    <i class="fas fa-cog me-2"></i>AdSense Configuration
-                </h5>
+<div class="bg-white rounded-lg shadow-lg">
+    <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-t-lg px-6 py-4">
+        <h2 class="text-xl font-semibold text-white flex items-center">
+            <i class="fas fa-cog mr-3"></i>
+            AdSense Configuration
+        </h2>
+    </div>
+    <div class="p-6">
+        <form method="POST" class="space-y-6">
+            {{ form.hidden_tag() }}
+            
+            <!-- Publisher ID -->
+            <div>
+                <label for="{{ form.publisher_id.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    <i class="fas fa-id-card text-gray-400 mr-2"></i>{{ form.publisher_id.label.text }}
+                </label>
+                {{ form.publisher_id(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200", placeholder="ca-pub-1234567890123456") }}
+                <p class="mt-2 text-sm text-gray-500">
+                    Your Google AdSense Publisher ID (found in your AdSense account)
+                </p>
             </div>
-            <div class="card-body">
-                <form method="POST">
-                    {{ form.hidden_tag() }}
-                    
-                    <!-- Publisher ID -->
-                    <div class="mb-4">
-                        <label for="{{ form.publisher_id.id }}" class="form-label">
-                            <i class="fas fa-id-card me-1"></i>{{ form.publisher_id.label.text }}
-                        </label>
-                        {{ form.publisher_id(class="form-control", placeholder="ca-pub-1234567890123456") }}
-                        <div class="form-text">
-                            Your Google AdSense Publisher ID (found in your AdSense account)
+
+            <!-- Settings Row -->
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Enable/Disable AdSense -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <label class="text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-toggle-on text-green-500 mr-2"></i>{{ form.is_enabled.label.text }}
+                            </label>
+                            <p class="text-sm text-gray-500 mt-1">
+                                Toggle this to enable or disable all AdSense ads on your site
+                            </p>
+                        </div>
+                        <div class="ml-4">
+                            {{ form.is_enabled(class="w-12 h-6 bg-gray-200 rounded-full relative focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-200 ease-in-out") }}
                         </div>
                     </div>
+                </div>
 
-                    <!-- Enable/Disable AdSense -->
-                    <div class="mb-4">
-                        <div class="form-check form-switch">
-                            {{ form.is_enabled(class="form-check-input") }}
-                            <label class="form-check-label" for="{{ form.is_enabled.id }}">
-                                <i class="fas fa-toggle-on me-1"></i>{{ form.is_enabled.label.text }}
+                <!-- Auto Ads -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <label class="text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-magic text-purple-500 mr-2"></i>{{ form.auto_ads_enabled.label.text }}
                             </label>
+                            <p class="text-sm text-gray-500 mt-1">
+                                Let Google automatically place ads on your site for optimal performance
+                            </p>
                         </div>
-                        <div class="form-text">
-                            Toggle this to enable or disable all AdSense ads on your site
+                        <div class="ml-4">
+                            {{ form.auto_ads_enabled(class="w-12 h-6 bg-gray-200 rounded-full relative focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-200 ease-in-out") }}
                         </div>
                     </div>
-
-                    <!-- Auto Ads -->
-                    <div class="mb-4">
-                        <div class="form-check form-switch">
-                            {{ form.auto_ads_enabled(class="form-check-input") }}
-                            <label class="form-check-label" for="{{ form.auto_ads_enabled.id }}">
-                                <i class="fas fa-magic me-1"></i>{{ form.auto_ads_enabled.label.text }}
-                            </label>
-                        </div>
-                        <div class="form-text">
-                            Let Google automatically place ads on your site for optimal performance
-                        </div>
-                    </div>
-
-                    <!-- Ad Frequency -->
-                    <div class="mb-4">
-                        <label for="{{ form.ad_frequency.id }}" class="form-label">
-                            <i class="fas fa-users me-1"></i>{{ form.ad_frequency.label.text }}
-                        </label>
-                        {{ form.ad_frequency(class="form-select") }}
-                        <div class="form-text">
-                            Control who sees the advertisements on your site
-                        </div>
-                    </div>
-
-                    <!-- Responsive Ads -->
-                    <div class="mb-4">
-                        <div class="form-check form-switch">
-                            {{ form.responsive_ads(class="form-check-input") }}
-                            <label class="form-check-label" for="{{ form.responsive_ads.id }}">
-                                <i class="fas fa-mobile-alt me-1"></i>{{ form.responsive_ads.label.text }}
-                            </label>
-                        </div>
-                        <div class="form-text">
-                            Use responsive ad units that automatically adapt to different screen sizes
-                        </div>
-                    </div>
-
-                    <hr>
-
-                    <!-- Ad Code Sections -->
-                    <div class="row">
-                        <!-- Header Ad Code -->
-                        <div class="col-md-6 mb-4">
-                            <label for="{{ form.header_ad_code.id }}" class="form-label">
-                                <i class="fas fa-arrow-up me-1"></i>{{ form.header_ad_code.label.text }}
-                            </label>
-                            {{ form.header_ad_code(class="form-control", rows="6") }}
-                            <div class="form-text">
-                                Ad code that will appear at the top of every page
-                            </div>
-                        </div>
-
-                        <!-- Sidebar Ad Code -->
-                        <div class="col-md-6 mb-4">
-                            <label for="{{ form.sidebar_ad_code.id }}" class="form-label">
-                                <i class="fas fa-arrows-alt-h me-1"></i>{{ form.sidebar_ad_code.label.text }}
-                            </label>
-                            {{ form.sidebar_ad_code(class="form-control", rows="6") }}
-                            <div class="form-text">
-                                Ad code that will appear in the sidebar of content pages
-                            </div>
-                        </div>
-
-                        <!-- Footer Ad Code -->
-                        <div class="col-md-6 mb-4">
-                            <label for="{{ form.footer_ad_code.id }}" class="form-label">
-                                <i class="fas fa-arrow-down me-1"></i>{{ form.footer_ad_code.label.text }}
-                            </label>
-                            {{ form.footer_ad_code(class="form-control", rows="6") }}
-                            <div class="form-text">
-                                Ad code that will appear at the bottom of every page
-                            </div>
-                        </div>
-
-                        <!-- Post Content Ad Code -->
-                        <div class="col-md-6 mb-4">
-                            <label for="{{ form.post_content_ad_code.id }}" class="form-label">
-                                <i class="fas fa-file-alt me-1"></i>{{ form.post_content_ad_code.label.text }}
-                            </label>
-                            {{ form.post_content_ad_code(class="form-control", rows="6") }}
-                            <div class="form-text">
-                                Ad code that will appear within post content areas
-                            </div>
-                        </div>
-
-                        <!-- Category Page Ad Code -->
-                        <div class="col-md-6 mb-4">
-                            <label for="{{ form.category_ad_code.id }}" class="form-label">
-                                <i class="fas fa-tags me-1"></i>{{ form.category_ad_code.label.text }}
-                            </label>
-                            {{ form.category_ad_code(class="form-control", rows="6") }}
-                            <div class="form-text">
-                                Ad code that will appear on category listing pages
-                            </div>
-                        </div>
-
-                        <!-- Profile Page Ad Code -->
-                        <div class="col-md-6 mb-4">
-                            <label for="{{ form.profile_ad_code.id }}" class="form-label">
-                                <i class="fas fa-user me-1"></i>{{ form.profile_ad_code.label.text }}
-                            </label>
-                            {{ form.profile_ad_code(class="form-control", rows="6") }}
-                            <div class="form-text">
-                                Ad code that will appear on user profile pages
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Submit Button -->
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary me-md-2">
-                            <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
-                        </a>
-                        {{ form.submit(class="btn btn-primary") }}
-                    </div>
-                </form>
+                </div>
             </div>
-        </div>
+
+            <!-- Ad Frequency and Responsive Ads -->
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Ad Frequency -->
+                <div>
+                    <label for="{{ form.ad_frequency.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-users text-blue-500 mr-2"></i>{{ form.ad_frequency.label.text }}
+                    </label>
+                    {{ form.ad_frequency(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200") }}
+                    <p class="mt-2 text-sm text-gray-500">
+                        Control who sees the advertisements on your site
+                    </p>
+                </div>
+
+                <!-- Responsive Ads -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <label class="text-sm font-medium text-gray-700 flex items-center">
+                                <i class="fas fa-mobile-alt text-orange-500 mr-2"></i>{{ form.responsive_ads.label.text }}
+                            </label>
+                            <p class="text-sm text-gray-500 mt-1">
+                                Use responsive ad units that automatically adapt to different screen sizes
+                            </p>
+                        </div>
+                        <div class="ml-4">
+                            {{ form.responsive_ads(class="w-12 h-6 bg-gray-200 rounded-full relative focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-200 ease-in-out") }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-200 pt-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-6 flex items-center">
+                    <i class="fas fa-code text-green-500 mr-2"></i>
+                    Ad Code Configuration
+                </h3>
+
+                <!-- Ad Code Sections -->
+                <div class="grid md:grid-cols-2 gap-6">
+                    <!-- Header Ad Code -->
+                    <div>
+                        <label for="{{ form.header_ad_code.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-arrow-up text-purple-500 mr-2"></i>{{ form.header_ad_code.label.text }}
+                        </label>
+                        {{ form.header_ad_code(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 font-mono text-sm", rows="6") }}
+                        <p class="mt-2 text-sm text-gray-500">
+                            Ad code that will appear at the top of every page
+                        </p>
+                    </div>
+
+                    <!-- Sidebar Ad Code -->
+                    <div>
+                        <label for="{{ form.sidebar_ad_code.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-arrows-alt-h text-orange-500 mr-2"></i>{{ form.sidebar_ad_code.label.text }}
+                        </label>
+                        {{ form.sidebar_ad_code(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 font-mono text-sm", rows="6") }}
+                        <p class="mt-2 text-sm text-gray-500">
+                            Ad code that will appear in the sidebar of content pages
+                        </p>
+                    </div>
+
+                    <!-- Footer Ad Code -->
+                    <div>
+                        <label for="{{ form.footer_ad_code.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-arrow-down text-red-500 mr-2"></i>{{ form.footer_ad_code.label.text }}
+                        </label>
+                        {{ form.footer_ad_code(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 font-mono text-sm", rows="6") }}
+                        <p class="mt-2 text-sm text-gray-500">
+                            Ad code that will appear at the bottom of every page
+                        </p>
+                    </div>
+
+                    <!-- Post Content Ad Code -->
+                    <div>
+                        <label for="{{ form.post_content_ad_code.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-file-alt text-blue-500 mr-2"></i>{{ form.post_content_ad_code.label.text }}
+                        </label>
+                        {{ form.post_content_ad_code(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 font-mono text-sm", rows="6") }}
+                        <p class="mt-2 text-sm text-gray-500">
+                            Ad code that will appear within post content areas
+                        </p>
+                    </div>
+
+                    <!-- Category Page Ad Code -->
+                    <div>
+                        <label for="{{ form.category_ad_code.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-tags text-green-500 mr-2"></i>{{ form.category_ad_code.label.text }}
+                        </label>
+                        {{ form.category_ad_code(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 font-mono text-sm", rows="6") }}
+                        <p class="mt-2 text-sm text-gray-500">
+                            Ad code that will appear on category listing pages
+                        </p>
+                    </div>
+
+                    <!-- Profile Page Ad Code -->
+                    <div>
+                        <label for="{{ form.profile_ad_code.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-user text-indigo-500 mr-2"></i>{{ form.profile_ad_code.label.text }}
+                        </label>
+                        {{ form.profile_ad_code(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 font-mono text-sm", rows="6") }}
+                        <p class="mt-2 text-sm text-gray-500">
+                            Ad code that will appear on user profile pages
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4 pt-6 border-t border-gray-200">
+                <a href="{{ url_for('admin_dashboard') }}" class="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition duration-200 text-center">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+                </a>
+                {{ form.submit(class="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition duration-200 font-medium") }}
+            </div>
+        </form>
     </div>
 </div>
 
 <!-- Current Settings Preview -->
 {% if adsense and adsense.id %}
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="card admin-card">
-            <div class="card-header bg-success text-white">
-                <h5 class="mb-0">
-                    <i class="fas fa-eye me-2"></i>Current AdSense Status
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="text-center">
-                            <h6 class="text-info">Publisher ID</h6>
-                            <p class="small">{{ adsense.publisher_id or 'Not Set' }}</p>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="text-center">
-                            <h6 class="text-info">Header Ad</h6>
-                            <span class="badge bg-{% if adsense.header_ad_code %}success{% else %}secondary{% endif %}">
-                                {% if adsense.header_ad_code %}Set{% else %}Not Set{% endif %}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="text-center">
-                            <h6 class="text-info">Sidebar Ad</h6>
-                            <span class="badge bg-{% if adsense.sidebar_ad_code %}success{% else %}secondary{% endif %}">
-                                {% if adsense.sidebar_ad_code %}Set{% else %}Not Set{% endif %}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="text-center">
-                            <h6 class="text-info">Footer Ad</h6>
-                            <span class="badge bg-{% if adsense.footer_ad_code %}success{% else %}secondary{% endif %}">
-                                {% if adsense.footer_ad_code %}Set{% else %}Not Set{% endif %}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="text-center">
-                            <h6 class="text-info">Post Content Ad</h6>
-                            <span class="badge bg-{% if adsense.post_content_ad_code %}success{% else %}secondary{% endif %}">
-                                {% if adsense.post_content_ad_code %}Set{% else %}Not Set{% endif %}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <hr>
-                <div class="text-center">
-                    <small class="text-muted">
-                        Last updated: {{ adsense.updated_at.strftime('%B %d, %Y at %I:%M %p') if adsense.updated_at else 'Never' }}
-                    </small>
+<div class="bg-white rounded-lg shadow-lg mt-8">
+    <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-t-lg px-6 py-4">
+        <h2 class="text-xl font-semibold text-white flex items-center">
+            <i class="fas fa-eye mr-3"></i>
+            Current AdSense Status
+        </h2>
+    </div>
+    <div class="p-6">
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
+            <div class="text-center">
+                <div class="bg-blue-50 rounded-lg p-4">
+                    <i class="fas fa-id-card text-blue-500 text-2xl mb-2"></i>
+                    <h3 class="font-semibold text-gray-800 mb-1">Publisher ID</h3>
+                    <p class="text-sm text-gray-600 break-all">{{ adsense.publisher_id or 'Not Set' }}</p>
                 </div>
             </div>
+            <div class="text-center">
+                <div class="bg-purple-50 rounded-lg p-4">
+                    <i class="fas fa-arrow-up text-purple-500 text-2xl mb-2"></i>
+                    <h3 class="font-semibold text-gray-800 mb-2">Header Ad</h3>
+                    <span class="px-3 py-1 rounded-full text-xs font-medium {% if adsense.header_ad_code %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {% if adsense.header_ad_code %}Set{% else %}Not Set{% endif %}
+                    </span>
+                </div>
+            </div>
+            <div class="text-center">
+                <div class="bg-orange-50 rounded-lg p-4">
+                    <i class="fas fa-arrows-alt-h text-orange-500 text-2xl mb-2"></i>
+                    <h3 class="font-semibold text-gray-800 mb-2">Sidebar Ad</h3>
+                    <span class="px-3 py-1 rounded-full text-xs font-medium {% if adsense.sidebar_ad_code %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {% if adsense.sidebar_ad_code %}Set{% else %}Not Set{% endif %}
+                    </span>
+                </div>
+            </div>
+            <div class="text-center">
+                <div class="bg-red-50 rounded-lg p-4">
+                    <i class="fas fa-arrow-down text-red-500 text-2xl mb-2"></i>
+                    <h3 class="font-semibold text-gray-800 mb-2">Footer Ad</h3>
+                    <span class="px-3 py-1 rounded-full text-xs font-medium {% if adsense.footer_ad_code %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {% if adsense.footer_ad_code %}Set{% else %}Not Set{% endif %}
+                    </span>
+                </div>
+            </div>
+            <div class="text-center">
+                <div class="bg-blue-50 rounded-lg p-4">
+                    <i class="fas fa-file-alt text-blue-500 text-2xl mb-2"></i>
+                    <h3 class="font-semibold text-gray-800 mb-2">Post Content</h3>
+                    <span class="px-3 py-1 rounded-full text-xs font-medium {% if adsense.post_content_ad_code %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {% if adsense.post_content_ad_code %}Set{% else %}Not Set{% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-gray-200 mt-6 pt-4 text-center">
+            <p class="text-sm text-gray-500">
+                <i class="fas fa-clock mr-1"></i>
+                Last updated: {{ adsense.updated_at.strftime('%B %d, %Y at %I:%M %p') if adsense.updated_at else 'Never' }}
+            </p>
         </div>
     </div>
 </div>

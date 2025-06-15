@@ -3,127 +3,235 @@
 {% block title %}Comments Management - Admin{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 text-warning">
-        <i class="fas fa-comments me-2"></i>Comments Management
-    </h1>
-    <span class="badge bg-warning fs-6">{{ comments.total }} Total Comments</span>
+<!-- Header Section -->
+<div class="bg-gradient-to-r from-green-600 to-green-700 rounded-lg shadow-lg p-6 mb-8">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+        <div class="flex items-center mb-4 sm:mb-0">
+            <div class="bg-white bg-opacity-20 rounded-lg p-3 mr-4">
+                <i class="fas fa-comments text-white text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-bold text-white">Comments Management</h1>
+                <p class="text-green-100 mt-1">Manage and moderate user comments</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-4">
+            <span class="px-4 py-2 bg-white bg-opacity-20 rounded-full text-sm font-medium text-white">
+                <i class="fas fa-chart-line mr-2"></i>{{ comments.total }} Total Comments
+            </span>
+        </div>
+    </div>
 </div>
 
-<!-- Comments Table -->
-<div class="card admin-card">
-    <div class="card-header bg-warning text-dark">
-        <h5 class="mb-0">All Comments</h5>
+<!-- Comments List -->
+<div class="bg-white rounded-lg shadow-lg">
+    <div class="bg-gradient-to-r from-green-500 to-green-600 rounded-t-lg px-6 py-4">
+        <h2 class="text-xl font-semibold text-white flex items-center">
+            <i class="fas fa-list mr-3"></i>
+            All Comments
+        </h2>
     </div>
-    <div class="card-body p-0">
+    <div class="p-6">
         {% if comments.items %}
-        <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>ID</th>
-                        <th>Content</th>
-                        <th>Author</th>
-                        <th>Post</th>
-                        <th>Status</th>
-                        <th>Date</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for comment in comments.items %}
-                    <tr>
-                        <td>{{ comment.id }}</td>
-                        <td>
-                            <div style="max-width: 300px;">
-                                {{ comment.content | truncate_words(100) | nl2br | safe }}
-                            </div>
-                        </td>
-                        <td>{{ comment.author.username }}</td>
-                        <td>
-                            <a href="{{ url_for('post_detail', post_id=comment.post.id) }}" 
-                               target="_blank" class="text-decoration-none">
-                                {{ comment.post.title | truncate_words(30) }}
-                            </a>
-                        </td>
-                        <td>
-                            {% if comment.is_active %}
-                                <span class="badge bg-success">Active</span>
-                            {% else %}
-                                <span class="badge bg-warning">Inactive</span>
-                            {% endif %}
-                        </td>
-                                                        <td>{{ comment.date_posted.strftime('%m/%d/%Y') if comment.date_posted else 'N/A' }}</td>
-                        <td>
-                            <div class="btn-group btn-group-sm" role="group">
-                                <a href="{{ url_for('post_detail', post_id=comment.post.id) }}" 
-                                   class="btn btn-outline-info" title="View Post" target="_blank">
-                                    <i class="fas fa-eye"></i>
+            <!-- Desktop Table View -->
+            <div class="hidden lg:block overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-gray-200">
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">ID</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Content</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Author</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Post</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Date</th>
+                            <th class="text-left py-3 px-4 font-semibold text-gray-700">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for comment in comments.items %}
+                        <tr class="border-b border-gray-100 hover:bg-gray-50 transition duration-200">
+                            <td class="py-4 px-4 font-medium text-gray-900">{{ comment.id }}</td>
+                            <td class="py-4 px-4">
+                                <div class="max-w-xs">
+                                    <p class="text-sm text-gray-800 line-clamp-3">
+                                        {{ comment.content | truncate_words(100) | nl2br | safe }}
+                                    </p>
+                                </div>
+                            </td>
+                            <td class="py-4 px-4">
+                                <div class="flex items-center">
+                                    <div class="bg-gray-100 rounded-full w-8 h-8 flex items-center justify-center mr-3">
+                                        <i class="fas fa-user text-gray-500 text-sm"></i>
+                                    </div>
+                                    <span class="font-medium text-gray-900">{{ comment.author.username }}</span>
+                                </div>
+                            </td>
+                            <td class="py-4 px-4">
+                                <a href="{{ url_for('post_detail', slug=comment.post.slug) }}" 
+                                   target="_blank" 
+                                   class="text-blue-600 hover:text-blue-800 underline text-sm">
+                                    {{ comment.post.title | truncate_words(30) }}
                                 </a>
-                                <form method="POST" action="{{ url_for('admin_toggle_comment', comment_id=comment.id) }}" 
-                                      class="d-inline">
-                                    <button type="submit" 
-                                            class="btn btn-outline-{{ 'success' if not comment.is_active else 'warning' }}" 
-                                            title="{{ 'Activate' if not comment.is_active else 'Deactivate' }} Comment">
-                                        <i class="fas fa-{{ 'check' if not comment.is_active else 'ban' }}"></i>
-                                    </button>
-                                </form>
-                                <form method="POST" action="{{ url_for('admin_delete_comment', comment_id=comment.id) }}" 
-                                      class="d-inline" onsubmit="return confirm('Are you sure you want to delete this comment?')">
-                                    <button type="submit" class="btn btn-outline-danger" title="Delete Comment">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
+                            </td>
+                            <td class="py-4 px-4">
+                                {% if comment.is_active %}
+                                    <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                                        <i class="fas fa-check-circle mr-1"></i>Active
+                                    </span>
+                                {% else %}
+                                    <span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">
+                                        <i class="fas fa-pause-circle mr-1"></i>Inactive
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="py-4 px-4 text-sm text-gray-600">
+                                {{ comment.date_posted.strftime('%m/%d/%Y') if comment.date_posted else 'N/A' }}
+                            </td>
+                            <td class="py-4 px-4">
+                                <div class="flex space-x-2">
+                                    <a href="{{ url_for('post_detail', slug=comment.post.slug) }}" 
+                                       class="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition duration-200" 
+                                       title="View Post" target="_blank">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <form method="POST" action="{{ url_for('admin_toggle_comment', comment_id=comment.id) }}" 
+                                          class="inline">
+                                        <button type="submit" 
+                                                class="p-2 text-{{ 'green' if not comment.is_active else 'yellow' }}-600 hover:bg-{{ 'green' if not comment.is_active else 'yellow' }}-100 rounded-lg transition duration-200" 
+                                                title="{{ 'Activate' if not comment.is_active else 'Deactivate' }} Comment">
+                                            <i class="fas fa-{{ 'check' if not comment.is_active else 'ban' }}"></i>
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ url_for('admin_delete_comment', comment_id=comment.id) }}" 
+                                          class="inline" 
+                                          onsubmit="return confirm('Are you sure you want to delete this comment?');">
+                                        <button type="submit" 
+                                                class="p-2 text-red-600 hover:bg-red-100 rounded-lg transition duration-200" 
+                                                title="Delete Comment">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Mobile Card View -->
+            <div class="lg:hidden space-y-4">
+                {% for comment in comments.items %}
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex items-center">
+                            <div class="bg-gray-200 rounded-full w-8 h-8 flex items-center justify-center mr-3">
+                                <i class="fas fa-user text-gray-500 text-sm"></i>
                             </div>
-                        </td>
-                    </tr>
+                            <div>
+                                <p class="font-medium text-gray-900">{{ comment.author.username }}</p>
+                                <p class="text-xs text-gray-500">ID: {{ comment.id }}</p>
+                            </div>
+                        </div>
+                        <div>
+                            {% if comment.is_active %}
+                                <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                                    Active
+                                </span>
+                            {% else %}
+                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">
+                                    Inactive
+                                </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <p class="text-sm text-gray-800">
+                            {{ comment.content | truncate_words(50) | nl2br | safe }}
+                        </p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <p class="text-xs text-gray-500 mb-1">Post:</p>
+                        <a href="{{ url_for('post_detail', slug=comment.post.slug) }}" 
+                           target="_blank" 
+                           class="text-blue-600 hover:text-blue-800 underline text-sm">
+                            {{ comment.post.title | truncate_words(20) }}
+                        </a>
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <p class="text-xs text-gray-500">
+                            {{ comment.date_posted.strftime('%m/%d/%Y') if comment.date_posted else 'N/A' }}
+                        </p>
+                        <div class="flex space-x-2">
+                            <a href="{{ url_for('post_detail', slug=comment.post.slug) }}" 
+                               class="px-3 py-1 text-blue-600 hover:bg-blue-100 rounded text-sm transition duration-200" 
+                               target="_blank">
+                                <i class="fas fa-eye mr-1"></i>View
+                            </a>
+                            <form method="POST" action="{{ url_for('admin_toggle_comment', comment_id=comment.id) }}" 
+                                  class="inline">
+                                <button type="submit" 
+                                        class="px-3 py-1 text-{{ 'green' if not comment.is_active else 'yellow' }}-600 hover:bg-{{ 'green' if not comment.is_active else 'yellow' }}-100 rounded text-sm transition duration-200">
+                                    <i class="fas fa-{{ 'check' if not comment.is_active else 'ban' }} mr-1"></i>
+                                    {{ 'Activate' if not comment.is_active else 'Deactivate' }}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if comments.pages > 1 %}
+            <div class="flex justify-center mt-8">
+                <nav class="flex space-x-2">
+                    {% if comments.has_prev %}
+                        <a href="{{ url_for('admin_comments', page=comments.prev_num) }}" 
+                           class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition duration-200">
+                            <i class="fas fa-chevron-left mr-1"></i>Previous
+                        </a>
+                    {% endif %}
+                    
+                    {% for page_num in comments.iter_pages() %}
+                        {% if page_num %}
+                            {% if page_num != comments.page %}
+                                <a href="{{ url_for('admin_comments', page=page_num) }}" 
+                                   class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition duration-200">
+                                    {{ page_num }}
+                                </a>
+                            {% else %}
+                                <span class="px-4 py-2 bg-green-500 text-white rounded-lg font-medium">
+                                    {{ page_num }}
+                                </span>
+                            {% endif %}
+                        {% else %}
+                            <span class="px-4 py-2 text-gray-400">...</span>
+                        {% endif %}
                     {% endfor %}
-                </tbody>
-            </table>
-        </div>
+                    
+                    {% if comments.has_next %}
+                        <a href="{{ url_for('admin_comments', page=comments.next_num) }}" 
+                           class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition duration-200">
+                            Next<i class="fas fa-chevron-right ml-1"></i>
+                        </a>
+                    {% endif %}
+                </nav>
+            </div>
+            {% endif %}
         {% else %}
-        <div class="text-center py-5">
-            <i class="fas fa-comments fa-3x text-muted mb-3"></i>
-            <h5 class="text-muted">No comments found</h5>
-        </div>
+            <!-- Empty State -->
+            <div class="text-center py-12">
+                <div class="bg-gray-100 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-comments text-gray-400 text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">No comments found</h3>
+                <p class="text-gray-500">Comments will appear here when users start engaging with posts.</p>
+            </div>
         {% endif %}
     </div>
 </div>
-
-<!-- Pagination -->
-{% if comments.pages > 1 %}
-<nav aria-label="Comments pagination" class="mt-4">
-    <ul class="pagination justify-content-center">
-        {% if comments.has_prev %}
-        <li class="page-item">
-            <a class="page-link" href="{{ url_for('admin_comments', page=comments.prev_num) }}">Previous</a>
-        </li>
-        {% endif %}
-        
-        {% for page_num in comments.iter_pages() %}
-            {% if page_num %}
-                {% if page_num != comments.page %}
-                <li class="page-item">
-                    <a class="page-link" href="{{ url_for('admin_comments', page=page_num) }}">{{ page_num }}</a>
-                </li>
-                {% else %}
-                <li class="page-item active">
-                    <span class="page-link">{{ page_num }}</span>
-                </li>
-                {% endif %}
-            {% else %}
-            <li class="page-item disabled">
-                <span class="page-link">...</span>
-            </li>
-            {% endif %}
-        {% endfor %}
-        
-        {% if comments.has_next %}
-        <li class="page-item">
-            <a class="page-link" href="{{ url_for('admin_comments', page=comments.next_num) }}">Next</a>
-        </li>
-        {% endif %}
-    </ul>
-</nav>
-{% endif %}
 {% endblock %} 

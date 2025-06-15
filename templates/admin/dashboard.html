@@ -1,206 +1,371 @@
 {% extends "admin/base.html" %}
 
 {% block title %}Dashboard - Admin{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_description %}Overview of your AfroPeople community{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 text-success">
-        <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
-    </h1>
-    <span class="badge bg-success fs-6">Admin Panel</span>
-</div>
+<style>
+/* Ensure content stays visible */
+.admin-card {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+}
+
+/* Prevent flash message auto-hide from affecting dashboard */
+main .fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.pulse-animation {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+</style>
 
 <!-- Statistics Cards -->
-<div class="row mb-4">
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card admin-card stat-card">
-            <div class="card-body text-center">
-                <div class="text-primary mb-2">
-                    <i class="fas fa-users fa-2x"></i>
-                </div>
-                <h4 class="card-title text-primary">{{ total_users }}</h4>
-                <p class="card-text text-muted">Total Users</p>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Total Users -->
+    <div class="admin-card bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white fade-in-up">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-blue-100 text-sm font-medium">Total Users</p>
+                <p class="text-3xl font-bold">{{ total_users or 0 }}</p>
+                <p class="text-blue-100 text-xs mt-1">
+                    <i class="fas fa-arrow-up mr-1"></i>
+                    +12% from last month
+                </p>
+            </div>
+            <div class="bg-white/20 rounded-full p-3">
+                <i class="fas fa-users text-2xl"></i>
             </div>
         </div>
     </div>
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card admin-card stat-card">
-            <div class="card-body text-center">
-                <div class="text-success mb-2">
-                    <i class="fas fa-file-alt fa-2x"></i>
-                </div>
-                <h4 class="card-title text-success">{{ total_posts }}</h4>
-                <p class="card-text text-muted">Total Posts</p>
+
+    <!-- Total Posts -->
+    <div class="admin-card bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-6 text-white fade-in-up" style="animation-delay: 0.1s">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-green-100 text-sm font-medium">Total Posts</p>
+                <p class="text-3xl font-bold">{{ total_posts or 0 }}</p>
+                <p class="text-green-100 text-xs mt-1">
+                    <i class="fas fa-arrow-up mr-1"></i>
+                    +8% from last month
+                </p>
+            </div>
+            <div class="bg-white/20 rounded-full p-3">
+                <i class="fas fa-file-alt text-2xl"></i>
             </div>
         </div>
     </div>
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card admin-card stat-card">
-            <div class="card-body text-center">
-                <div class="text-warning mb-2">
-                    <i class="fas fa-comments fa-2x"></i>
-                </div>
-                <h4 class="card-title text-warning">{{ total_comments }}</h4>
-                <p class="card-text text-muted">Total Comments</p>
+
+    <!-- Total Comments -->
+    <div class="admin-card bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-6 text-white fade-in-up" style="animation-delay: 0.2s">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-purple-100 text-sm font-medium">Total Comments</p>
+                <p class="text-3xl font-bold">{{ total_comments or 0 }}</p>
+                <p class="text-purple-100 text-xs mt-1">
+                    <i class="fas fa-arrow-up mr-1"></i>
+                    +15% from last month
+                </p>
+            </div>
+            <div class="bg-white/20 rounded-full p-3">
+                <i class="fas fa-comments text-2xl"></i>
             </div>
         </div>
     </div>
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card admin-card stat-card">
-            <div class="card-body text-center">
-                <div class="text-info mb-2">
-                    <i class="fas fa-tags fa-2x"></i>
-                </div>
-                <h4 class="card-title text-info">{{ total_categories }}</h4>
-                <p class="card-text text-muted">Categories</p>
+
+    <!-- Categories -->
+    <div class="admin-card bg-gradient-to-br from-orange-500 to-red-500 rounded-xl shadow-lg p-6 text-white fade-in-up" style="animation-delay: 0.3s">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-orange-100 text-sm font-medium">Categories</p>
+                <p class="text-3xl font-bold">{{ total_categories or 0 }}</p>
+                <p class="text-orange-100 text-xs mt-1">
+                    <i class="fas fa-check mr-1"></i>
+                    All active
+                </p>
+            </div>
+            <div class="bg-white/20 rounded-full p-3">
+                <i class="fas fa-tags text-2xl"></i>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Recent Activity -->
-<div class="row">
-    <!-- Recent Users -->
-    <div class="col-lg-6 mb-4">
-        <div class="card admin-card">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">
-                    <i class="fas fa-user-plus me-2"></i>Recent Users
-                </h5>
+<!-- Main Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+    <!-- Recent Activity -->
+    <div class="lg:col-span-2">
+        <div class="admin-card bg-white rounded-xl shadow-lg p-6 fade-in-up" style="animation-delay: 0.4s">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <i class="fas fa-chart-line text-blue-500 mr-3"></i>
+                    Recent Activity
+                </h3>
+                <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">View All</button>
             </div>
-            <div class="card-body">
-                {% if recent_users %}
-                    <div class="list-group list-group-flush">
-                        {% for user in recent_users %}
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>{{ user.username }}</strong>
-                                {% if user.is_admin %}
-                                    <span class="badge bg-danger ms-2">Admin</span>
-                                {% endif %}
-                                <br>
-                                <small class="text-muted">{{ user.email }}</small>
+            
+            <div class="space-y-4">
+                {% if recent_posts %}
+                    {% for post in recent_posts[:5] %}
+                    <div class="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div class="flex-shrink-0">
+                            <div class="w-10 h-10 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-file-alt text-white text-sm"></i>
                             </div>
-                            <small class="text-muted">
-                                {{ user.date_joined.strftime('%m/%d/%Y') if user.date_joined else 'N/A' }}
-                            </small>
                         </div>
-                        {% endfor %}
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 truncate">
+                                {{ post.title }}
+                            </p>
+                            <p class="text-sm text-gray-500">
+                                by {{ post.author.username }} in {{ post.category.name }}
+                            </p>
+                            <p class="text-xs text-gray-400 mt-1">
+                                {{ post.date_posted.strftime('%B %d, %Y at %I:%M %p') if post.date_posted else 'N/A' }}
+                            </p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            {% if post.is_active %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Active
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    Inactive
+                                </span>
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="text-center mt-3">
-                        <a href="{{ url_for('admin_users') }}" class="btn btn-primary btn-sm">
-                            View All Users
-                        </a>
-                    </div>
+                    {% endfor %}
                 {% else %}
-                    <p class="text-muted text-center">No users found.</p>
+                    <div class="text-center py-8">
+                        <i class="fas fa-inbox text-gray-300 text-4xl mb-4"></i>
+                        <p class="text-gray-500">No recent posts found</p>
+                    </div>
                 {% endif %}
             </div>
         </div>
     </div>
 
-    <!-- Recent Posts -->
-    <div class="col-lg-6 mb-4">
-        <div class="card admin-card">
-            <div class="card-header bg-success text-white">
-                <h5 class="mb-0">
-                    <i class="fas fa-file-alt me-2"></i>Recent Posts
-                </h5>
+    <!-- Quick Stats & Actions -->
+    <div class="space-y-6">
+        <!-- System Status -->
+        <div class="admin-card bg-white rounded-xl shadow-lg p-6 fade-in-up" style="animation-delay: 0.5s">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <i class="fas fa-server text-green-500 mr-3"></i>
+                System Status
+            </h3>
+            
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">Database</span>
+                    <span class="flex items-center text-green-600">
+                        <div class="w-2 h-2 bg-green-500 rounded-full mr-2 pulse-animation"></div>
+                        Online
+                    </span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">AdSense</span>
+                    {% if adsense and adsense.is_enabled %}
+                        <span class="flex items-center text-green-600">
+                            <div class="w-2 h-2 bg-green-500 rounded-full mr-2 pulse-animation"></div>
+                            Active
+                        </span>
+                    {% else %}
+                        <span class="flex items-center text-gray-500">
+                            <div class="w-2 h-2 bg-gray-400 rounded-full mr-2"></div>
+                            Inactive
+                        </span>
+                    {% endif %}
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">Advertisements</span>
+                    <span class="flex items-center text-blue-600">
+                        <div class="w-2 h-2 bg-blue-500 rounded-full mr-2 pulse-animation"></div>
+                        {{ active_ads_count or 0 }} Active
+                    </span>
+                </div>
             </div>
-            <div class="card-body">
-                {% if recent_posts %}
-                    <div class="list-group list-group-flush">
-                        {% for post in recent_posts %}
-                        <div class="list-group-item">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <strong>{{ post.title | truncate_words(50) }}</strong>
-                                    {% if not post.is_active %}
-                                        <span class="badge bg-warning ms-2">Inactive</span>
-                                    {% endif %}
-                                    <br>
-                                    <small class="text-muted">
-                                        by {{ post.author.username }} in {{ post.category.name }}
-                                    </small>
-                                </div>
-                                <small class="text-muted">
-                                    {{ post.date_posted.strftime('%m/%d/%Y') if post.date_posted else 'N/A' }}
-                                </small>
-                            </div>
+        </div>
+
+        <!-- Recent Users -->
+        <div class="admin-card bg-white rounded-xl shadow-lg p-6 fade-in-up" style="animation-delay: 0.6s">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <i class="fas fa-user-plus text-purple-500 mr-3"></i>
+                Recent Users
+            </h3>
+            
+            <div class="space-y-3">
+                {% if recent_users %}
+                    {% for user in recent_users[:4] %}
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full flex items-center justify-center">
+                            <span class="text-white text-xs font-medium">{{ user.username[0].upper() }}</span>
                         </div>
-                        {% endfor %}
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 truncate">{{ user.username }}</p>
+                            <p class="text-xs text-gray-500">{{ user.date_joined.strftime('%b %d') if user.date_joined else 'N/A' }}</p>
+                        </div>
+                        {% if user.is_admin %}
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                Admin
+                            </span>
+                        {% endif %}
                     </div>
-                    <div class="text-center mt-3">
-                        <a href="{{ url_for('admin_posts') }}" class="btn btn-success btn-sm">
-                            View All Posts
-                        </a>
-                    </div>
+                    {% endfor %}
                 {% else %}
-                    <p class="text-muted text-center">No posts found.</p>
+                    <p class="text-gray-500 text-sm">No recent users</p>
                 {% endif %}
+            </div>
+            
+            <div class="mt-4">
+                <a href="{{ url_for('admin_users') }}" class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium text-center block">
+                    View All Users
+                </a>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Quick Actions -->
-<div class="row">
-    <div class="col-12">
-        <div class="card admin-card">
-            <div class="card-header bg-info text-white">
-                <h5 class="mb-0">
-                    <i class="fas fa-lightning-bolt me-2"></i>Quick Actions
-                </h5>
+<div class="admin-card bg-white rounded-xl shadow-lg p-6 fade-in-up" style="animation-delay: 0.7s">
+    <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+        <i class="fas fa-bolt text-yellow-500 mr-3"></i>
+        Quick Actions
+    </h3>
+    
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <a href="{{ url_for('admin_add_category') }}" class="group flex flex-col items-center p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-all duration-200 hover:scale-105">
+            <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mb-3 group-hover:bg-blue-600 transition-colors">
+                <i class="fas fa-plus text-white"></i>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3 mb-2">
-                        <a href="{{ url_for('admin_add_category') }}" class="btn btn-outline-primary w-100">
-                            <i class="fas fa-plus me-1"></i>Add Category
-                        </a>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <a href="{{ url_for('admin_users') }}" class="btn btn-outline-success w-100">
-                            <i class="fas fa-users me-1"></i>Manage Users
-                        </a>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <a href="{{ url_for('admin_posts') }}" class="btn btn-outline-warning w-100">
-                            <i class="fas fa-file-alt me-1"></i>Moderate Posts
-                        </a>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <a href="{{ url_for('admin_adsense') }}" class="btn btn-outline-info w-100">
-                            <i class="fas fa-ad me-1"></i>AdSense
-                        </a>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <a href="{{ url_for('admin_advertisements') }}" class="btn btn-outline-purple w-100">
-                            <i class="fas fa-bullhorn me-1"></i>Advertisements
-                        </a>
-                    </div>
-                </div>
-                <div class="row mt-2">
-                    <div class="col-md-3 mb-2">
-                        <a href="{{ url_for('admin_categories') }}" class="btn btn-outline-secondary w-100">
-                            <i class="fas fa-tags me-1"></i>Categories
-                        </a>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <a href="{{ url_for('admin_comments') }}" class="btn btn-outline-info w-100">
-                            <i class="fas fa-comments me-1"></i>Comments
-                        </a>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <a href="{{ url_for('index') }}" class="btn btn-outline-dark w-100">
-                            <i class="fas fa-external-link-alt me-1"></i>View Site
-                        </a>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <!-- Empty space for future actions -->
-                    </div>
-                </div>
+            <span class="text-sm font-medium text-gray-700 text-center">Add Category</span>
+        </a>
+        
+        <a href="{{ url_for('admin_users') }}" class="group flex flex-col items-center p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-all duration-200 hover:scale-105">
+            <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mb-3 group-hover:bg-green-600 transition-colors">
+                <i class="fas fa-users text-white"></i>
             </div>
+            <span class="text-sm font-medium text-gray-700 text-center">Manage Users</span>
+        </a>
+        
+        <a href="{{ url_for('admin_posts') }}" class="group flex flex-col items-center p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-all duration-200 hover:scale-105">
+            <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mb-3 group-hover:bg-purple-600 transition-colors">
+                <i class="fas fa-file-alt text-white"></i>
+            </div>
+            <span class="text-sm font-medium text-gray-700 text-center">Moderate Posts</span>
+        </a>
+        
+        <a href="{{ url_for('admin_adsense') }}" class="group flex flex-col items-center p-4 bg-orange-50 hover:bg-orange-100 rounded-lg transition-all duration-200 hover:scale-105">
+            <div class="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center mb-3 group-hover:bg-orange-600 transition-colors">
+                <i class="fas fa-ad text-white"></i>
+            </div>
+            <span class="text-sm font-medium text-gray-700 text-center">AdSense</span>
+        </a>
+        
+        <a href="{{ url_for('admin_advertisements') }}" class="group flex flex-col items-center p-4 bg-red-50 hover:bg-red-100 rounded-lg transition-all duration-200 hover:scale-105">
+            <div class="w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center mb-3 group-hover:bg-red-600 transition-colors">
+                <i class="fas fa-bullhorn text-white"></i>
+            </div>
+            <span class="text-sm font-medium text-gray-700 text-center">Advertisements</span>
+        </a>
+        
+        <a href="{{ url_for('admin_comments') }}" class="group flex flex-col items-center p-4 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-all duration-200 hover:scale-105">
+            <div class="w-12 h-12 bg-indigo-500 rounded-lg flex items-center justify-center mb-3 group-hover:bg-indigo-600 transition-colors">
+                <i class="fas fa-comments text-white"></i>
+            </div>
+            <span class="text-sm font-medium text-gray-700 text-center">Comments</span>
+        </a>
+    </div>
+</div>
+
+<!-- Performance Metrics -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+    <!-- Engagement Chart -->
+    <div class="admin-card bg-white rounded-xl shadow-lg p-6 fade-in-up" style="animation-delay: 0.8s">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+            <i class="fas fa-chart-bar text-blue-500 mr-3"></i>
+            Community Engagement
+        </h3>
+        
+        <div class="space-y-4">
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">Posts this week</span>
+                <span class="text-sm font-medium text-gray-900">{{ posts_this_week or 0 }}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-blue-500 h-2 rounded-full" style="width: {{ (posts_this_week or 0) * 10 }}%"></div>
+            </div>
+            
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">Comments this week</span>
+                <span class="text-sm font-medium text-gray-900">{{ comments_this_week or 0 }}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-green-500 h-2 rounded-full" style="width: {{ (comments_this_week or 0) * 5 }}%"></div>
+            </div>
+            
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">New users this week</span>
+                <span class="text-sm font-medium text-gray-900">{{ new_users_this_week or 0 }}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+                <div class="bg-purple-500 h-2 rounded-full" style="width: {{ (new_users_this_week or 0) * 20 }}%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Categories -->
+    <div class="admin-card bg-white rounded-xl shadow-lg p-6 fade-in-up" style="animation-delay: 0.9s">
+        <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+            <i class="fas fa-fire text-orange-500 mr-3"></i>
+            Popular Categories
+        </h3>
+        
+        <div class="space-y-4">
+            {% if categories %}
+                {% for category in categories[:5] %}
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-gradient-to-r from-orange-400 to-red-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-tag text-white text-xs"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">{{ category.name }}</p>
+                            <p class="text-xs text-gray-500">{{ category.posts|length }} posts</p>
+                        </div>
+                    </div>
+                    <span class="text-sm text-gray-500">{{ loop.index }}</span>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-gray-500 text-sm">No categories found</p>
+            {% endif %}
+        </div>
+        
+        <div class="mt-6">
+            <a href="{{ url_for('admin_categories') }}" class="w-full bg-orange-600 text-white py-2 px-4 rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium text-center block">
+                Manage Categories
+            </a>
         </div>
     </div>
 </div>

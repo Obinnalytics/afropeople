@@ -702,18 +702,62 @@ def edit_profile():
 @login_required
 @admin_required
 def admin_dashboard():
-    total_users = User.query.count()
-    total_posts = Post.query.count()
-    total_comments = Comment.query.count()
-    total_categories = Category.query.count()
-    
-    recent_posts = Post.query.order_by(Post.date_posted.desc()).limit(5).all()
-    recent_users = User.query.order_by(User.date_joined.desc()).limit(5).all()
-    
-    return render_template('admin/dashboard.html', 
-                         total_users=total_users, total_posts=total_posts,
-                         total_comments=total_comments, total_categories=total_categories,
-                         recent_posts=recent_posts, recent_users=recent_users)
+    try:
+        # Basic counts with error handling
+        total_users = User.query.count() or 0
+        total_posts = Post.query.count() or 0
+        total_comments = Comment.query.count() or 0
+        total_categories = Category.query.count() or 0
+        
+        # Recent data with error handling
+        recent_posts = Post.query.order_by(Post.date_posted.desc()).limit(5).all() or []
+        recent_users = User.query.order_by(User.date_joined.desc()).limit(5).all() or []
+        
+        # Weekly statistics with error handling
+        week_ago = datetime.utcnow() - timedelta(days=7)
+        posts_this_week = Post.query.filter(Post.date_posted >= week_ago).count() or 0
+        comments_this_week = Comment.query.filter(Comment.date_posted >= week_ago).count() or 0
+        new_users_this_week = User.query.filter(User.date_joined >= week_ago).count() or 0
+        
+        # Advertisement statistics with error handling
+        active_ads_count = Advertisement.query.filter_by(is_active=True).count() or 0
+        
+        # Categories with post counts
+        categories = Category.query.all() or []
+        
+        # AdSense status
+        adsense = AdSense.query.first()
+        
+        return render_template('admin/dashboard.html', 
+                             total_users=total_users, 
+                             total_posts=total_posts,
+                             total_comments=total_comments, 
+                             total_categories=total_categories,
+                             recent_posts=recent_posts, 
+                             recent_users=recent_users,
+                             posts_this_week=posts_this_week,
+                             comments_this_week=comments_this_week,
+                             new_users_this_week=new_users_this_week,
+                             active_ads_count=active_ads_count,
+                             categories=categories,
+                             adsense=adsense)
+    except Exception as e:
+        # Log the error and provide fallback data
+        print(f"Dashboard error: {e}")
+        flash('Dashboard data may be incomplete due to a system error.', 'warning')
+        return render_template('admin/dashboard.html', 
+                             total_users=0, 
+                             total_posts=0,
+                             total_comments=0, 
+                             total_categories=0,
+                             recent_posts=[], 
+                             recent_users=[],
+                             posts_this_week=0,
+                             comments_this_week=0,
+                             new_users_this_week=0,
+                             active_ads_count=0,
+                             categories=[],
+                             adsense=None)
 
 @app.route('/admin/users')
 @login_required

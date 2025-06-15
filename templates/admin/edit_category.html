@@ -1,84 +1,212 @@
-{% extends "admin/base.html" %}
+﻿{% extends "admin/base.html" %}
 
 {% block title %}Edit Category - Admin{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 text-info">
-        <i class="fas fa-edit me-2"></i>Edit Category: {{ category.name }}
-    </h1>
-    <a href="{{ url_for('admin_categories') }}" class="btn btn-secondary">
-        <i class="fas fa-arrow-left me-1"></i>Back to Categories
-    </a>
+<!-- Header Section -->
+<div class="bg-gradient-to-r from-green-600 to-green-700 rounded-lg shadow-lg p-6 mb-8">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+        <div class="flex items-center mb-4 sm:mb-0">
+            <div class="bg-white bg-opacity-20 rounded-lg p-3 mr-4">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-3xl font-bold text-white">Edit Category</h1>
+                <p class="text-green-100 mt-1">{{ category.name }}</p>
+            </div>
+        </div>
+        <a href="{{ url_for('admin_categories') }}" 
+           class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Back to Categories
+        </a>
+    </div>
 </div>
 
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card admin-card">
-            <div class="card-header bg-info text-white">
-                <h5 class="mb-0">Category Information</h5>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Main Form -->
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <!-- Form Header -->
+            <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
+                <h2 class="text-xl font-bold text-white flex items-center">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 713 12V7a4 4 0 714-4z"></path>
+                    </svg>
+                    Category Information
+                </h2>
             </div>
-            <div class="card-body">
-                <form method="POST">
+
+            <!-- Form Body -->
+            <div class="p-6">
+                <form method="POST" class="space-y-6">
                     {{ form.hidden_tag() }}
                     
-                    <div class="mb-3">
-                        {{ form.name.label(class="form-label") }}
-                        {{ form.name(class="form-control") }}
+                    <!-- Category Name -->
+                    <div>
+                        <label for="{{ form.name.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 713 12V7a4 4 0 714-4z"></path>
+                            </svg>
+                            {{ form.name.label.text }}
+                        </label>
+                        {{ form.name(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200") }}
                         {% if form.name.errors %}
-                            <div class="text-danger mt-1">
+                            <div class="mt-2 text-red-600 text-sm">
                                 {% for error in form.name.errors %}
-                                    <small>{{ error }}</small>
+                                    <p class="flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        {{ error }}
+                                    </p>
                                 {% endfor %}
                             </div>
                         {% endif %}
+                        <p class="mt-2 text-sm text-gray-500">
+                            Choose a descriptive name for the category
+                        </p>
                     </div>
                     
-                    <div class="mb-3">
-                        {{ form.description.label(class="form-label") }}
-                        {{ form.description(class="form-control", rows="4") }}
+                    <!-- Category Description -->
+                    <div>
+                        <label for="{{ form.description.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
+                            </svg>
+                            {{ form.description.label.text }}
+                        </label>
+                        {{ form.description(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 resize-vertical", rows="4") }}
                         {% if form.description.errors %}
-                            <div class="text-danger mt-1">
+                            <div class="mt-2 text-red-600 text-sm">
                                 {% for error in form.description.errors %}
-                                    <small>{{ error }}</small>
+                                    <p class="flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        {{ error }}
+                                    </p>
                                 {% endfor %}
                             </div>
                         {% endif %}
+                        <p class="mt-2 text-sm text-gray-500">
+                            Provide a brief description of what this category is for (optional)
+                        </p>
                     </div>
                     
-                    <hr>
-                    
-                    <!-- Category Stats -->
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <div class="text-center">
-                                <h5 class="text-primary">{{ category.posts|length }}</h5>
-                                <small class="text-muted">Posts in this Category</small>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="text-center">
-                                <h5 class="text-info">
-                                    {% if category.is_active %}
-                                        <i class="fas fa-check-circle text-success"></i> Active
-                                    {% else %}
-                                        <i class="fas fa-times-circle text-warning"></i> Inactive
-                                    {% endif %}
-                                </h5>
-                                <small class="text-muted">Current Status</small>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="d-flex justify-content-between">
-                        <a href="{{ url_for('admin_categories') }}" class="btn btn-secondary">
-                            <i class="fas fa-times me-1"></i>Cancel
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                        <a href="{{ url_for('admin_categories') }}" 
+                           class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            Cancel
                         </a>
-                        {{ form.submit(class="btn btn-info") }}
+                        {{ form.submit(class="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors duration-200 flex items-center justify-center") }}
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
+    <!-- Stats Panel -->
+    <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+            <!-- Stats Header -->
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
+                <h3 class="text-lg font-bold text-white flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 712-2h2a2 2 0 712 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 712-2h2a2 2 0 712 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Category Statistics
+                </h3>
+            </div>
+
+            <!-- Stats Content -->
+            <div class="p-6 space-y-4">
+                <!-- Posts Count -->
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <div class="bg-green-100 rounded-full p-3 mr-4">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 712-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-green-600">{{ category.posts|length }}</div>
+                            <div class="text-sm text-green-700">Posts in Category</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div class="{% if category.is_active %}bg-green-50 border-green-200{% else %}bg-yellow-50 border-yellow-200{% endif %} border rounded-lg p-4">
+                    <div class="flex items-center">
+                        <div class="{% if category.is_active %}bg-green-100{% else %}bg-yellow-100{% endif %} rounded-full p-3 mr-4">
+                            {% if category.is_active %}
+                                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            {% else %}
+                                <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                </svg>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <div class="text-lg font-semibold {% if category.is_active %}text-green-600{% else %}text-yellow-600{% endif %}">
+                                {% if category.is_active %}Active{% else %}Inactive{% endif %}
+                            </div>
+                            <div class="text-sm {% if category.is_active %}text-green-700{% else %}text-yellow-700{% endif %}">Current Status</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category Info -->
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h4 class="font-semibold text-gray-900 mb-2">Category Details</h4>
+                    <div class="space-y-2 text-sm text-gray-600">
+                        <div class="flex justify-between">
+                            <span>Slug:</span>
+                            <span class="font-mono bg-gray-200 px-2 py-1 rounded text-xs">{{ category.slug }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>ID:</span>
+                            <span>{{ category.id }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h4 class="font-semibold text-blue-900 mb-3">Quick Actions</h4>
+                    <div class="space-y-2">
+                        <form method="POST" action="{{ url_for('admin_toggle_category', category_id=category.id) }}">
+                            <button type="submit" 
+                                    class="w-full {% if category.is_active %}bg-yellow-500 hover:bg-yellow-600{% else %}bg-green-500 hover:bg-green-600{% endif %} text-white py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center"
+                                    onclick="return confirm('Are you sure you want to {{ 'deactivate' if category.is_active else 'activate' }} this category?')">
+                                {% if category.is_active %}
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"></path>
+                                    </svg>
+                                    Deactivate Category
+                                {% else %}
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Activate Category
+                                {% endif %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-{% endblock %} 
+{% endblock %}

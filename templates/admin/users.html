@@ -3,76 +3,218 @@
 {% block title %}Users Management - Admin{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 text-primary">
-        <i class="fas fa-users me-2"></i>Users Management
-    </h1>
-    <span class="badge bg-primary fs-6">{{ users.total }} Total Users</span>
+<!-- Page Header -->
+<div class="mb-8">
+    <div class="bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl p-8 text-white shadow-lg">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold mb-2 flex items-center">
+                    <i class="fas fa-users mr-3"></i>
+                    Users Management
+                </h1>
+                <p class="text-primary-100 text-lg">Manage user accounts, roles, and permissions</p>
+            </div>
+            <div class="text-right">
+                <div class="bg-white/20 rounded-2xl px-6 py-4">
+                    <div class="text-3xl font-bold">{{ users.total }}</div>
+                    <div class="text-primary-100 text-sm">Total Users</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-user-check text-green-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-600">Active Users</p>
+                <p class="text-2xl font-bold text-gray-900">{{ users.items | selectattr('is_active') | list | length }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-user-shield text-red-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-600">Administrators</p>
+                <p class="text-2xl font-bold text-gray-900">{{ users.items | selectattr('is_admin') | list | length }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-file-alt text-blue-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-600">Total Posts</p>
+                <p class="text-2xl font-bold text-gray-900">
+                    {% set total_posts = 0 %}
+                    {% for user in users.items %}
+                        {% set total_posts = total_posts + user.posts|length %}
+                    {% endfor %}
+                    {{ total_posts }}
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                <i class="fas fa-comments text-purple-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-600">Total Comments</p>
+                <p class="text-2xl font-bold text-gray-900">
+                    {% set total_comments = 0 %}
+                    {% for user in users.items %}
+                        {% set total_comments = total_comments + user.comments|length %}
+                    {% endfor %}
+                    {{ total_comments }}
+                </p>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Users Table -->
-<div class="card admin-card">
-    <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">All Users</h5>
+<div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-8 py-6 border-b border-gray-200">
+        <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+            <i class="fas fa-list text-primary-500 mr-3"></i>
+            All Users
+        </h2>
     </div>
-    <div class="card-body p-0">
+    
+    <div>
         {% if users.items %}
-        <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead class="table-light">
+        <!-- Desktop Table View -->
+        <div class="hidden lg:block">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
                     <tr>
-                        <th>ID</th>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Status</th>
-                        <th>Joined</th>
-                        <th>Posts</th>
-                        <th>Actions</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role & Status</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activity</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-gray-200">
                     {% for user in users.items %}
-                    <tr>
-                        <td>{{ user.id }}</td>
-                        <td>
-                            <strong>{{ user.username }}</strong>
-                            {% if user.id == current_user.id %}
-                                <span class="badge bg-info ms-1">You</span>
-                            {% endif %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-4 py-4">
+                            <div class="flex items-center space-x-3">
+                                <div class="flex-shrink-0">
+                                    {% if user.profile_image and user.profile_image != 'default.jpg' %}
+                                    <img src="{{ url_for('static', filename='uploads/profile_pics/' + user.profile_image) }}" 
+                                         alt="{{ user.username }}'s profile" 
+                                         class="w-10 h-10 rounded-full object-cover">
+                                    {% else %}
+                                    <div class="w-10 h-10 bg-gradient-to-r from-primary-400 to-primary-500 rounded-full flex items-center justify-center">
+                                        <span class="text-white text-sm font-semibold">{{ user.username[0].upper() }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center space-x-2">
+                                        <p class="text-sm font-semibold text-gray-900 truncate">{{ user.username }}</p>
+                                        {% if user.id == current_user.id %}
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            You
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                    <p class="text-xs text-gray-500 truncate">{{ user.email }}</p>
+                                </div>
+                            </div>
                         </td>
-                        <td>{{ user.email }}</td>
-                        <td>
-                            {% if user.is_admin %}
-                                <span class="badge bg-danger">Admin</span>
-                            {% else %}
-                                <span class="badge bg-secondary">User</span>
-                            {% endif %}
+                        <td class="px-4 py-4">
+                            <div class="space-y-1">
+                                {% if user.is_admin %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    <i class="fas fa-shield-alt mr-1"></i>
+                                    Admin
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    <i class="fas fa-user mr-1"></i>
+                                    User
+                                </span>
+                                {% endif %}
+                                {% if user.is_active %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <i class="fas fa-check-circle mr-1"></i>
+                                    Active
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    <i class="fas fa-pause-circle mr-1"></i>
+                                    Inactive
+                                </span>
+                                {% endif %}
+                            </div>
                         </td>
-                        <td>
-                            {% if user.is_active %}
-                                <span class="badge bg-success">Active</span>
-                            {% else %}
-                                <span class="badge bg-warning">Inactive</span>
-                            {% endif %}
+                        <td class="px-4 py-4">
+                            <div class="flex items-center space-x-3 text-xs">
+                                <div class="flex items-center text-blue-600">
+                                    <i class="fas fa-file-alt mr-1"></i>
+                                    <span class="font-medium">{{ user.posts|length }}</span>
+                                </div>
+                                <div class="flex items-center text-green-600">
+                                    <i class="fas fa-comments mr-1"></i>
+                                    <span class="font-medium">{{ user.comments|length }}</span>
+                                </div>
+                            </div>
                         </td>
-                                                        <td>{{ user.date_joined.strftime('%m/%d/%Y') if user.date_joined else 'N/A' }}</td>
-                        <td>
-                            <span class="badge bg-info">{{ user.posts|length }}</span>
+                        <td class="px-4 py-4">
+                            <div class="text-sm text-gray-900">
+                                {{ user.date_joined.strftime('%b %d, %Y') if user.date_joined else 'N/A' }}
+                            </div>
                         </td>
-                        <td>
-                            <div class="btn-group btn-group-sm" role="group">
-                                <a href="{{ url_for('admin_edit_user', user_id=user.id) }}" 
-                                   class="btn btn-outline-primary" title="Edit User">
-                                    <i class="fas fa-edit"></i>
+                        <td class="px-4 py-4">
+                            <div class="flex items-center space-x-1">
+                                <!-- View Profile -->
+                                <a href="{{ url_for('profile', username=user.username) }}" 
+                                   target="_blank"
+                                   class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
+                                   title="View Profile">
+                                    <i class="fas fa-user text-xs"></i>
                                 </a>
+                                
+                                <!-- Edit User -->
+                                <a href="{{ url_for('admin_edit_user', user_id=user.id) }}" 
+                                   class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
+                                   title="Edit User">
+                                    <i class="fas fa-edit text-xs"></i>
+                                </a>
+                                
+                                <!-- Delete User -->
                                 {% if user.id != current_user.id %}
                                 <form method="POST" action="{{ url_for('admin_delete_user', user_id=user.id) }}" 
-                                      class="d-inline" onsubmit="return confirm('Are you sure you want to delete this user?')">
-                                    <button type="submit" class="btn btn-outline-danger" title="Delete User">
-                                        <i class="fas fa-trash"></i>
+                                      class="inline" 
+                                      onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.')">
+                                    <button type="submit" 
+                                            class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
+                                            title="Delete User">
+                                        <i class="fas fa-trash text-xs"></i>
                                     </button>
                                 </form>
+                                {% else %}
+                                <div class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed"
+                                     title="Cannot delete yourself">
+                                    <i class="fas fa-ban text-xs"></i>
+                                </div>
                                 {% endif %}
                             </div>
                         </td>
@@ -81,10 +223,129 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Mobile Card View -->
+        <div class="lg:hidden space-y-4">
+            {% for user in users.items %}
+            <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center space-x-3">
+                        <div class="flex-shrink-0">
+                            {% if user.profile_image and user.profile_image != 'default.jpg' %}
+                            <img src="{{ url_for('static', filename='uploads/profile_pics/' + user.profile_image) }}" 
+                                 alt="{{ user.username }}'s profile" 
+                                 class="w-12 h-12 rounded-full object-cover">
+                            {% else %}
+                            <div class="w-12 h-12 bg-gradient-to-r from-primary-400 to-primary-500 rounded-full flex items-center justify-center">
+                                <span class="text-white text-sm font-semibold">{{ user.username[0].upper() }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <h3 class="text-sm font-semibold text-gray-900">{{ user.username }}</h3>
+                                {% if user.id == current_user.id %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    You
+                                </span>
+                                {% endif %}
+                            </div>
+                            <p class="text-xs text-gray-500">{{ user.email }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-1">
+                        <!-- View Profile -->
+                        <a href="{{ url_for('profile', username=user.username) }}" 
+                           target="_blank"
+                           class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
+                           title="View Profile">
+                            <i class="fas fa-user text-xs"></i>
+                        </a>
+                        
+                        <!-- Edit User -->
+                        <a href="{{ url_for('admin_edit_user', user_id=user.id) }}" 
+                           class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
+                           title="Edit User">
+                            <i class="fas fa-edit text-xs"></i>
+                        </a>
+                        
+                        <!-- Delete User -->
+                        {% if user.id != current_user.id %}
+                        <form method="POST" action="{{ url_for('admin_delete_user', user_id=user.id) }}" 
+                              class="inline" 
+                              onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.')">
+                            <button type="submit" 
+                                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
+                                    title="Delete User">
+                                <i class="fas fa-trash text-xs"></i>
+                            </button>
+                        </form>
+                        {% else %}
+                        <div class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 text-gray-400 cursor-not-allowed"
+                             title="Cannot delete yourself">
+                            <i class="fas fa-ban text-xs"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        {% if user.is_admin %}
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            <i class="fas fa-shield-alt mr-1"></i>
+                            Admin
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            <i class="fas fa-user mr-1"></i>
+                            User
+                        </span>
+                        {% endif %}
+                        
+                        {% if user.is_active %}
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <i class="fas fa-check-circle mr-1"></i>
+                            Active
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            <i class="fas fa-pause-circle mr-1"></i>
+                            Inactive
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="flex items-center space-x-3 text-xs text-gray-600">
+                        <div class="flex items-center">
+                            <i class="fas fa-file-alt mr-1 text-blue-600"></i>
+                            <span>{{ user.posts|length }}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-comments mr-1 text-green-600"></i>
+                            <span>{{ user.comments|length }}</span>
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            {{ user.date_joined.strftime('%b %Y') if user.date_joined else 'N/A' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
         {% else %}
-        <div class="text-center py-5">
-            <i class="fas fa-users fa-3x text-muted mb-3"></i>
-            <h5 class="text-muted">No users found</h5>
+        <div class="text-center py-16">
+            <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-users text-gray-400 text-3xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 mb-2">No users found</h3>
+            <p class="text-gray-600 mb-6">There are no users in the system yet.</p>
+            <a href="{{ url_for('register') }}" 
+               class="inline-flex items-center bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-6 py-3 rounded-xl font-semibold shadow-sm transition-all duration-200">
+                <i class="fas fa-user-plus mr-2"></i>
+                Register First User
+            </a>
         </div>
         {% endif %}
     </div>
@@ -92,38 +353,49 @@
 
 <!-- Pagination -->
 {% if users.pages > 1 %}
-<nav aria-label="Users pagination" class="mt-4">
-    <ul class="pagination justify-content-center">
+<div class="mt-8 flex items-center justify-between">
+    <div class="text-sm text-gray-700">
+        Showing {{ ((users.page - 1) * users.per_page) + 1 }} to {{ users.page * users.per_page if users.page * users.per_page < users.total else users.total }} of {{ users.total }} users
+    </div>
+    
+    <nav class="flex items-center space-x-2">
         {% if users.has_prev %}
-        <li class="page-item">
-            <a class="page-link" href="{{ url_for('admin_users', page=users.prev_num) }}">Previous</a>
-        </li>
+        <a href="{{ url_for('admin_users', page=users.prev_num) }}" 
+           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+            <i class="fas fa-chevron-left mr-2"></i>
+            Previous
+        </a>
         {% endif %}
         
-        {% for page_num in users.iter_pages() %}
-            {% if page_num %}
-                {% if page_num != users.page %}
-                <li class="page-item">
-                    <a class="page-link" href="{{ url_for('admin_users', page=page_num) }}">{{ page_num }}</a>
-                </li>
+        <div class="flex items-center space-x-1">
+            {% for page_num in users.iter_pages() %}
+                {% if page_num %}
+                    {% if page_num != users.page %}
+                    <a href="{{ url_for('admin_users', page=page_num) }}" 
+                       class="inline-flex items-center justify-center w-10 h-10 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        {{ page_num }}
+                    </a>
+                    {% else %}
+                    <span class="inline-flex items-center justify-center w-10 h-10 border border-primary-500 bg-primary-500 rounded-lg text-sm font-medium text-white">
+                        {{ page_num }}
+                    </span>
+                    {% endif %}
                 {% else %}
-                <li class="page-item active">
-                    <span class="page-link">{{ page_num }}</span>
-                </li>
+                <span class="inline-flex items-center justify-center w-10 h-10 text-gray-400">
+                    ...
+                </span>
                 {% endif %}
-            {% else %}
-            <li class="page-item disabled">
-                <span class="page-link">...</span>
-            </li>
-            {% endif %}
-        {% endfor %}
+            {% endfor %}
+        </div>
         
         {% if users.has_next %}
-        <li class="page-item">
-            <a class="page-link" href="{{ url_for('admin_users', page=users.next_num) }}">Next</a>
-        </li>
+        <a href="{{ url_for('admin_users', page=users.next_num) }}" 
+           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+            Next
+            <i class="fas fa-chevron-right ml-2"></i>
+        </a>
         {% endif %}
-    </ul>
-</nav>
+    </nav>
+</div>
 {% endif %}
 {% endblock %} 
